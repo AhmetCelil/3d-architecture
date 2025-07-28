@@ -9,10 +9,9 @@ import com.example.commerce.basedtos.*;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AppException.class)
-    public ResponseEntity<BaseResponseDTO<?>> handleAppException(AppException ex) {
-        return new ResponseEntity<>(
-                BaseResponseDTO.error(ex.getMessages(), ex.getHttpStatus()),
-                ex.getHttpStatus()
-        );
+    public ResponseEntity<BaseResponseDto> handleAppException(AppException ex) {
+        BaseResponseDto response = new BaseResponseDto() {};
+        response.setMessages(ex.getMessages());
+        return new ResponseEntity<>(response, ex.getHttpStatus());
     }
 }

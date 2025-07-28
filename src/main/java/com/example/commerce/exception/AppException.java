@@ -1,6 +1,7 @@
 package com.example.commerce.exception;
 
 
+import com.example.commerce.basedtos.AppMessageDto;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpStatus;
@@ -32,26 +33,5 @@ public abstract class AppException extends RuntimeException {
         super(cause);
         this.messages = messages;
         this.httpStatus = httpStatus;
-        this.translateMessages();
-    }
-
-    private void translateMessages() {
-        if (this.messages != null) {
-            TranslatorService translatorService = SpringContextUtil.getBean(TranslatorService.class);
-            for (AppMessageDto message : this.messages) {
-                String code = message.getCode();
-                if (StringUtils.hasText(code) && !StringUtils.hasText(message.getText())) {
-                    String translated = translatorService.toLocale(code, message.getArgs());
-                    message.setText(translated);
-                }
-            }
-        }
-    }
-
-    @Override
-    public String getMessage() {
-        return this.messages.stream()
-                .map(AppMessageDto::getText)
-                .collect(Collectors.joining(". "));
     }
 }

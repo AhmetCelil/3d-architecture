@@ -1,5 +1,6 @@
 package com.example.commerce.exception;
 
+import com.example.commerce.basedtos.AppMessageDto;
 import org.springframework.http.HttpStatus;
 
 public class BusinessServiceException extends AppException {

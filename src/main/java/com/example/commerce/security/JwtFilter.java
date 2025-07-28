@@ -1,5 +1,6 @@
 package com.example.commerce.security;
 
+import com.example.commerce.auth.service.JwtService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;
