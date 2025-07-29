@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserRegisterRequestDTO extends BaseRequestDto {
+public class UserRegisterRequestDTO {
 
     private String email;
     private String password;

@@ -13,7 +13,7 @@ public class JwtService {
 
     private final Key key = Keys.hmacShaKeyFor("senin-örnek-secret-keyingüvenlivesifresi123!".getBytes());
 
-    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60; // 1 dakika
+    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 3; // 1 dakika
     private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7 gün
 
     public String generateAccessToken(String username, String role) {

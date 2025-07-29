@@ -1,22 +1,26 @@
 package com.example.commerce.profil;
 
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/profil")
+@AllArgsConstructor
 public class ProfilController {
 
-    @PreAuthorize("hasAuthority('SATICI')")
+    private ProfilServiceImpl profilService;
+
+    @PreAuthorize("hasAuthority('SIRKET')")
     @PostMapping("/ekle")
     public ResponseEntity<String> urunEkle(@RequestParam String profilId) {
         return ResponseEntity.ok("Ürün başarıyla eklendi");
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @DeleteMapping("/sil/{id}")
-    public ResponseEntity<String> urunSil(@PathVariable Long id) {
-        return ResponseEntity.ok("Ürün silindi");
+    @PreAuthorize("hasAuthority('SIRKET')")
+    @DeleteMapping("/sırket-sifre-guncelle")
+    public ResponseEntity<SirketSifreGuncelleResponseDTO> urunSil(@RequestBody SirketSifreGuncelleRequestDTO requestDTO) {
+        return ResponseEntity.ok(profilService.sirketSifreGuncelleResponseDTO(requestDTO));
     }
 }

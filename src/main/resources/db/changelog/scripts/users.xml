@@ -6,12 +6,12 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <!-- Sequence tanımı -->
-    <changeSet id="1" author="ahmet.celil.yalman">
+    <changeSet id="202507291108" author="ahmet.celil.yalman">
         <createSequence sequenceName="user_sequence" startValue="1"/>
     </changeSet>
 
     <!-- users tablosu -->
-    <changeSet id="2" author="ahmet.celil.yalman">
+    <changeSet id="202507291109" author="ahmet.celil.yalman">
         <createTable tableName="users">
             <column name="id" type="BIGINT">
                 <constraints primaryKey="true" nullable="false"/>

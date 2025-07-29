@@ -1,7 +1,7 @@
 package com.example.commerce.auth.enums;
 
 public enum Role {
-    KULLANICI,
-    SATICI,
+    ADMIN,
+    SIRKET,
     MUSTERI
 }
