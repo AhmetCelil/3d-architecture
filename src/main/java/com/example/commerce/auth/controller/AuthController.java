@@ -50,7 +50,16 @@ public class AuthController {
                         .body("Refresh token süresi dolmuş.");
             }
 
-            String newAccessToken = jwtService.generateAccessToken(username, userDetails.getAuthorities().toString());
+            String roleWithPrefix = userDetails.getAuthorities()
+                    .stream()
+                    .findFirst()
+                    .get()
+                    .getAuthority();
+
+            String role = roleWithPrefix.startsWith("ROLE_") ? roleWithPrefix.substring(5) : roleWithPrefix;
+
+            String newAccessToken = jwtService.generateAccessToken(username, role);
+
             return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
 
         } catch (Exception ex) {

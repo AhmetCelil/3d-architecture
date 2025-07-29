@@ -1,12 +1,13 @@
 package com.example.commerce.auth.dto;
 
 import com.example.commerce.auth.enums.Role;
+import com.example.commerce.basedtos.BaseRequestDto;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class UserRegisterRequestDTO {
+public class UserRegisterRequestDTO extends BaseRequestDto {
 
     private String email;
     private String password;

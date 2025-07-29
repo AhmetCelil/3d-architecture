@@ -13,7 +13,7 @@ public class JwtService {
 
     private final Key key = Keys.hmacShaKeyFor("senin-örnek-secret-keyingüvenlivesifresi123!".getBytes());
 
-    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 15; // 15 dakika
+    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60; // 1 dakika
     private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7 gün
 
     public String generateAccessToken(String username, String role) {
@@ -51,13 +51,6 @@ public class JwtService {
         return expiration.before(new Date());
     }
 
-    public String refreshAccessToken(String refreshToken, UserDetails userDetails) {
-        if (!isTokenExpired(refreshToken)) {
-            return generateAccessToken(userDetails.getUsername(), userDetails.getAuthorities().toString());
-        } else {
-            throw new RuntimeException("Refresh token expired.");
-        }
-    }
     public String extractRole(String token) {
         return extractAllClaims(token).get("role", String.class);
     }
