@@ -5,29 +5,102 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <!-- Sequence tanımı -->
+    <!-- 1) USER SEQUENCE -->
     <changeSet id="202507291108" author="ahmet.celil.yalman">
-        <createSequence sequenceName="user_sequence" startValue="1"/>
+        <createSequence sequenceName="user_sequence" startValue="1" incrementBy="1"/>
     </changeSet>
 
-    <!-- users tablosu -->
+    <!-- 2) USERS -->
     <changeSet id="202507291109" author="ahmet.celil.yalman">
         <createTable tableName="users">
             <column name="id" type="BIGINT">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="email" type="VARCHAR(255)"/>
-            <column name="password" type="VARCHAR(255)"/>
+
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="role" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="enabled" type="BOOLEAN" defaultValueBoolean="true"/>
+        </createTable>
+
+        <!-- (Opsiyonel) email için ayrı unique index -->
+        <createIndex tableName="users" indexName="idx_users_email" unique="true">
+            <column name="email"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 3) USER_PROFILES (1-1) -->
+    <changeSet id="202507291110" author="ahmet.celil.yalman">
+        <createTable tableName="user_profiles">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <!-- SpringPhysicalNamingStrategy ile camelCase -> snake_case uyumlu -->
             <column name="first_name" type="VARCHAR(255)"/>
             <column name="last_name" type="VARCHAR(255)"/>
-            <column name="phone" type="VARCHAR(255)"/>
+            <column name="phone_number" type="VARCHAR(255)"/>
             <column name="address" type="VARCHAR(255)"/>
-            <column name="city" type="VARCHAR(255)"/>
-            <column name="state" type="VARCHAR(255)"/>
-            <column name="country" type="VARCHAR(255)"/>
-            <column name="company" type="VARCHAR(255)"/>
-            <column name="company_url" type="VARCHAR(255)"/>
-            <column name="role" type="VARCHAR(50)"/>
+            <column name="profile_picture" type="VARCHAR(255)"/>
+            <column name="description" type="TEXT"/>
+
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
         </createTable>
+
+        <!-- FK + index -->
+        <createIndex tableName="user_profiles" indexName="idx_user_profiles_user_id">
+            <column name="user_id"/>
+        </createIndex>
+
+        <addForeignKeyConstraint
+                baseTableName="user_profiles"
+                baseColumnNames="user_id"
+                constraintName="fk_user_profiles_user"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
     </changeSet>
+
+    <!-- 4) COMPANY_PROJECTS (1-N) -->
+    <changeSet id="202507291111" author="ahmet.celil.yalman">
+        <createTable tableName="company_projects">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="project_name" type="VARCHAR(255)"/>
+            <column name="description" type="TEXT"/>
+            <column name="start_date" type="DATE"/>
+            <column name="end_date" type="DATE"/>
+
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- FK + index -->
+        <createIndex tableName="company_projects" indexName="idx_company_projects_user_id">
+            <column name="user_id"/>
+        </createIndex>
+
+        <addForeignKeyConstraint
+                baseTableName="company_projects"
+                baseColumnNames="user_id"
+                constraintName="fk_company_projects_user"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
 </databaseChangeLog>

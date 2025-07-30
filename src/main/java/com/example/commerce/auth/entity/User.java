@@ -1,11 +1,15 @@
 package com.example.commerce.auth.entity;
 
 import com.example.commerce.auth.enums.Role;
+import com.example.commerce.profil.entity.UserProfile;
+import com.example.commerce.profil.entity.CompanyProject;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Data
@@ -20,40 +24,21 @@ public class User {
     @SequenceGenerator(name = "user_seq", sequenceName = "user_sequence", allocationSize = 1)
     private Long id;
 
-    @Column(name = "email")
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password")
+    @Column(nullable = false)
     private String password;
-
-    @Column(name = "first_name")
-    private String firstName;
-
-    @Column(name = "last_name")
-    private String lastName;
-
-    @Column(name = "phone")
-    private String phone;
-
-    @Column(name = "address")
-    private String address;
-
-    @Column(name = "city")
-    private String city;
-
-    @Column(name = "state")
-    private String state;
-
-    @Column(name = "country")
-    private String country;
-
-    @Column(name = "company")
-    private String company;
-
-    @Column(name = "company_url")
-    private String companyUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
-    private Role role;
+    private Role role;;
+
+    private boolean enabled;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserProfile userProfile;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CompanyProject> projects;
 }
