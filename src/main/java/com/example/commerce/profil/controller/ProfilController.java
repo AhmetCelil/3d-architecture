@@ -1,10 +1,7 @@
 package com.example.commerce.profil.controller;
 
-import com.example.commerce.profil.dto.SirketProfilAyarlaRequestDTO;
-import com.example.commerce.profil.dto.SirketProfilAyarlaResponseDTO;
+import com.example.commerce.profil.dto.*;
 import com.example.commerce.profil.service.ProfilServiceImpl;
-import com.example.commerce.profil.dto.SirketSifreGuncelleRequestDTO;
-import com.example.commerce.profil.dto.SirketSifreGuncelleResponseDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,6 +32,11 @@ public class ProfilController {
         return ResponseEntity.ok(profilService.sirketProfilAyarla(requestDTO));
     }
 
+    @PreAuthorize("hasAuthority('SIRKET')")
+    @PostMapping("/sirket-proje-ayarla")
+    public ResponseEntity<SirketProjeAyarlaResponseDTO> sirketProjesiAyarla(@RequestBody SirketProjeAyarlaRequestDTO requestDTO) {
+        return ResponseEntity.ok(profilService.sirketProjesiAyarla(requestDTO));
+    }
 
 
 }

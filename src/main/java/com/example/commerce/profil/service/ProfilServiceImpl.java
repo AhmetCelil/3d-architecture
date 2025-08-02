@@ -4,10 +4,8 @@ import com.example.commerce.auth.entity.User;
 import com.example.commerce.auth.repository.UserRepository;
 import com.example.commerce.basedtos.AppMessageType;
 import com.example.commerce.exception.BusinessServiceException;
-import com.example.commerce.profil.dto.SirketProfilAyarlaRequestDTO;
-import com.example.commerce.profil.dto.SirketProfilAyarlaResponseDTO;
-import com.example.commerce.profil.dto.SirketSifreGuncelleRequestDTO;
-import com.example.commerce.profil.dto.SirketSifreGuncelleResponseDTO;
+import com.example.commerce.profil.dto.*;
+import com.example.commerce.profil.entity.CompanyProject;
 import com.example.commerce.profil.entity.UserProfile;
 import com.example.commerce.util.AppMessageUtil;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -76,12 +75,43 @@ public class ProfilServiceImpl {
         profile.setProfilePicture(requestDTO.getProfilePicture());
         profile.setDescription(requestDTO.getDescription());
 
-        userRepository.save(user);  // Cascade ile profile de kaydedilir
+        userRepository.save(user);
 
         responseDTO.setMessages(List.of(
                 AppMessageUtil.createWithCode(MSG_PROFIL_BILGISI_AYARLANDI, AppMessageType.SUCCESS)
         ));
-        // 6. Dönüş ver
+        return responseDTO;
+    }
+
+    public SirketProjeAyarlaResponseDTO sirketProjesiAyarla(SirketProjeAyarlaRequestDTO requestDTO) {
+        SirketProjeAyarlaResponseDTO responseDTO = new SirketProjeAyarlaResponseDTO();
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessServiceException("kullanıcı bulunamadı", "kullanıcı mevcut değil"));
+
+        CompanyProject project = CompanyProject.builder()
+                .projectName(requestDTO.getProjectName())
+                .description(requestDTO.getDescription())
+                .startDate(requestDTO.getStartDate())
+                .endDate(requestDTO.getEndDate())
+                .user(user)
+                .build();
+
+        // Eğer user.getProjects() null ise initialize et
+        if (user.getProjects() == null) {
+            user.setProjects(new ArrayList<>());
+        }
+
+        user.getProjects().add(project);
+        userRepository.save(user);
+
+        responseDTO.setMessages(List.of(
+                AppMessageUtil.createWithCode("MSG_PROJE_EKLEME_BASARILI", AppMessageType.SUCCESS)
+        ));
+
         return responseDTO;
     }
 }

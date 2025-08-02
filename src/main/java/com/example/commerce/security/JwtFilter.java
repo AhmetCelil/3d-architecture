@@ -74,7 +74,7 @@ public class JwtFilter extends OncePerRequestFilter {
             case "ADMIN" -> 10;
             case "SIRKET" -> 5;
             case "USER" -> 4;
-            default -> 10; // varsayılan
+            default -> 1; // varsayılan
         };
 
         RateLimitInfo info = rateLimitMap.computeIfAbsent(username, k -> new RateLimitInfo());
