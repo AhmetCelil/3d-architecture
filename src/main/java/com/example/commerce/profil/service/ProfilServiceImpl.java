@@ -3,6 +3,7 @@ package com.example.commerce.profil.service;
 import com.example.commerce.auth.entity.User;
 import com.example.commerce.auth.repository.UserRepository;
 import com.example.commerce.basedtos.AppMessageType;
+import com.example.commerce.exception.BusinessServiceException;
 import com.example.commerce.profil.dto.SirketProfilAyarlaRequestDTO;
 import com.example.commerce.profil.dto.SirketProfilAyarlaResponseDTO;
 import com.example.commerce.profil.dto.SirketSifreGuncelleRequestDTO;
@@ -56,14 +57,11 @@ public class ProfilServiceImpl {
         SirketProfilAyarlaResponseDTO responseDTO = new SirketProfilAyarlaResponseDTO();
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        // 1. Token'dan email al
         String email = authentication.getName();
-        // 2. User'ı bul
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Kullanıcı bulunamadı"));
 
-        // 3. Profili al veya oluştur
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessServiceException("kullanıcı bulunamadı","kullanıcı mevcut değil"));
+
         UserProfile profile = user.getUserProfile();
         if (profile == null) {
             profile = new UserProfile();
@@ -71,7 +69,6 @@ public class ProfilServiceImpl {
             user.setUserProfile(profile);
         }
 
-        // 4. DTO'dan gelen bilgileri profilde güncelle
         profile.setFirstName(requestDTO.getFirstName());
         profile.setLastName(requestDTO.getLastName());
         profile.setPhoneNumber(requestDTO.getPhoneNumber());
@@ -79,11 +76,10 @@ public class ProfilServiceImpl {
         profile.setProfilePicture(requestDTO.getProfilePicture());
         profile.setDescription(requestDTO.getDescription());
 
-        // 5. Kaydet
         userRepository.save(user);  // Cascade ile profile de kaydedilir
 
         responseDTO.setMessages(List.of(
-                AppMessageUtil.createWithCode(MSG_SIFRE_DEGISTIRILDI, AppMessageType.SUCCESS)
+                AppMessageUtil.createWithCode(MSG_PROFIL_BILGISI_AYARLANDI, AppMessageType.SUCCESS)
         ));
         // 6. Dönüş ver
         return responseDTO;

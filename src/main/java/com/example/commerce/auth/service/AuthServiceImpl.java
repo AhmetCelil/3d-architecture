@@ -64,7 +64,7 @@ public class AuthServiceImpl implements AuthService {
             ));
         }
         catch (BusinessServiceException | ValidationServiceException ex) {
-            throw ex;
+            responseDTO.setMessages(List.of(AppMessageUtil.create(MSG_KULLANICI_KAYDI_MEVCUT, "Girilen mailin kaydı bulunmaktadır", AppMessageType.ERROR)));
         }
         catch (Exception ex) {
             responseDTO.setMessages(List.of(
