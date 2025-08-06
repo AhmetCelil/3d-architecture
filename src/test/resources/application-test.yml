@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/commerce
+    username: user
+    password: secret123
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true

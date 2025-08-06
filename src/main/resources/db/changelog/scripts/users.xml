@@ -12,7 +12,7 @@
 
     <!-- 2) USERS -->
     <changeSet id="202507291109" author="ahmet.celil.yalman">
-        <createTable tableName="users">
+         <createTable tableName="users">
             <column name="id" type="BIGINT">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
