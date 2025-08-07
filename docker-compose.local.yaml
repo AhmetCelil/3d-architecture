@@ -1,0 +1,28 @@
+services:
+  main-db:
+    image: postgres:latest
+    container_name: main-db-container
+    environment:
+      POSTGRES_DB: commerce
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: secret123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  test-db:
+    image: postgres:latest
+    container_name: test-db-container
+    environment:
+      POSTGRES_DB: commerce
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: secret123
+    ports:
+      - "5433:5433"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+
+volumes:
+  postgres-data:

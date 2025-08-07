@@ -1,9 +1,10 @@
 spring:
+  config:
+    activate:
+      on-profile: local
+
   datasource:
     url: jdbc:postgresql://localhost:5432/commerce
     username: user
     password: secret123
-  jpa:
-    hibernate:
-      ddl-auto: none
-    show-sql: true
+    driver-class-name: org.postgresql.Driver

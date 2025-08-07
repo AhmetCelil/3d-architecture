@@ -37,8 +37,6 @@ dependencies {
 
 	compileOnly("org.projectlombok:lombok")
 
-	developmentOnly("org.springframework.boot:spring-boot-docker-compose")
-
 	runtimeOnly("org.postgresql:postgresql")
 
 	annotationProcessor("org.projectlombok:lombok")

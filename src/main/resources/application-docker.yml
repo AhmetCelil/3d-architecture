@@ -1,0 +1,10 @@
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/commerce
+    username: user
+    password: secret123
+    driver-class-name: org.postgresql.Driver
