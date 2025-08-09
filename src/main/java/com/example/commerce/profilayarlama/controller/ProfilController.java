@@ -1,7 +1,7 @@
-package com.example.commerce.profil.controller;
+package com.example.commerce.profilayarlama.controller;
 
-import com.example.commerce.profil.dto.*;
-import com.example.commerce.profil.service.ProfilServiceImpl;
+import com.example.commerce.profilayarlama.dto.*;
+import com.example.commerce.profilayarlama.service.ProfilServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

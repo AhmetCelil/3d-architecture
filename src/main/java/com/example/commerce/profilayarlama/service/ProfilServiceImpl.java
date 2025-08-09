@@ -1,12 +1,12 @@
-package com.example.commerce.profil.service;
+package com.example.commerce.profilayarlama.service;
 
 import com.example.commerce.auth.entity.User;
 import com.example.commerce.auth.repository.UserRepository;
 import com.example.commerce.basedtos.AppMessageType;
 import com.example.commerce.exception.BusinessServiceException;
-import com.example.commerce.profil.dto.*;
-import com.example.commerce.profil.entity.CompanyProject;
-import com.example.commerce.profil.entity.UserProfile;
+import com.example.commerce.profilayarlama.dto.*;
+import com.example.commerce.profilayarlama.entity.CompanyProject;
+import com.example.commerce.profilayarlama.entity.UserProfile;
 import com.example.commerce.util.AppMessageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
