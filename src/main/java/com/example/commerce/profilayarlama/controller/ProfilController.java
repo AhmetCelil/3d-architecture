@@ -34,7 +34,7 @@ public class ProfilController {
 
     @PreAuthorize("hasAuthority('SIRKET')")
     @PostMapping("/sirket-proje-ayarla")
-    public ResponseEntity<SirketProjeAyarlaResponseDTO> sirketProjesiAyarla(@RequestBody SirketProjeAyarlaRequestDTO requestDTO) {
+    public ResponseEntity<SirketProjeAyarlaResponseDTO> sirketProjeAyarla(@RequestBody SirketProjeAyarlaRequestDTO requestDTO) {
         return ResponseEntity.ok(profilService.sirketProjesiAyarla(requestDTO));
     }
 
