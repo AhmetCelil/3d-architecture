@@ -5,7 +5,7 @@ import com.example.commerce.auth.dto.UserLogInResponseDTO;
 import com.example.commerce.auth.dto.UserRegisterRequestDTO;
 import com.example.commerce.auth.dto.UserRegisterResponseDTO;
 import com.example.commerce.auth.service.AuthService;
-import com.example.commerce.auth.service.JwtService;
+import com.example.commerce.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

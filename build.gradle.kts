@@ -35,6 +35,8 @@ dependencies {
 
 	implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
 
+	implementation("io.minio:minio:8.5.2") // MinIO SDK
+
 	compileOnly("org.projectlombok:lombok")
 
 	runtimeOnly("org.postgresql:postgresql")

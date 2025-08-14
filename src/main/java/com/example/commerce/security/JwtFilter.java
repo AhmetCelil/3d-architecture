@@ -1,6 +1,5 @@
 package com.example.commerce.security;
 
-import com.example.commerce.auth.service.JwtService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;
@@ -73,7 +72,7 @@ public class JwtFilter extends OncePerRequestFilter {
         int maxRequestsPerMinute = switch (role.toUpperCase()) {
             case "ADMIN" -> 10;
             case "SIRKET" -> 5;
-            case "USER" -> 4;
+            case "MUSTERI" -> 4;
             default -> 1; // varsayılan
         };
 

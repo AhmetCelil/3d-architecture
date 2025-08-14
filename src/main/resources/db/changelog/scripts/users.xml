@@ -103,4 +103,12 @@
                 onDelete="CASCADE"/>
     </changeSet>
 
+    <!-- 5) COMPANY_PROJECTS FILE_PATH EKLE -->
+    <changeSet id="202508141200" author="ahmet.celil.yalman">
+        <addColumn tableName="company_projects">
+            <column name="file_path" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+
+
 </databaseChangeLog>
