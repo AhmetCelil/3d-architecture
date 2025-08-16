@@ -1,4 +1,4 @@
-package com.example.commerce.users;
+package com.example.commerce.users.service;
 
 import com.example.commerce.users.dto.CompanyProjectResponseDTO;
 import com.example.commerce.auth.entity.User;

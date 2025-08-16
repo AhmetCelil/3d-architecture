@@ -1,5 +1,6 @@
-package com.example.commerce.users;
+package com.example.commerce.users.controller;
 
+import com.example.commerce.users.service.UserService;
 import com.example.commerce.users.dto.CompanyProjectResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
