@@ -18,4 +18,4 @@ minio:
   url: http://localhost:9000
   access-key: admin
   secret-key: admin123
-  bucket: project-files
+  bucket: projects
