@@ -1,3 +1,4 @@
+/*
 package com.example.commerce.config;
 
 import io.minio.MinioClient;
@@ -25,3 +26,4 @@ public class MinioConfig {
                 .build();
     }
 }
+*/

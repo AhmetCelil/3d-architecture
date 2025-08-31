@@ -15,7 +15,6 @@ spring:
     driver-class-name: org.postgresql.Driver
 
 minio:
-  url: http://localhost:9000
-  access-key: admin
-  secret-key: admin123
-  bucket: projects
+  endpoint: http://localhost:9000
+  accessKey: admin
+  secretKey: admin123

@@ -14,17 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class AdminController {
 
-    private final AdminService adminService;
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/sirket-proje-ekle")
-    public ResponseEntity<AdminSirketProjeEkleResponseDTO> adminSirketProjeEkle(
-            @RequestPart("data") AdminSirketProjeEkleRequestDTO requestDTO,
-            @RequestPart(value = "file", required = false) MultipartFile file) {
-
-        AdminSirketProjeEkleResponseDTO response = adminService.adminSirketProjeEkle(requestDTO, file);
-        return ResponseEntity.ok(response);
-    }
 
 
 
