@@ -14,8 +14,4 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class AdminController {
 
-
-
-
-
 }

@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/", "/auth/**", "/index.html", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/admin-profil/**").permitAll()
+                        .requestMatchers("/s3/**").permitAll() // Allow S3 endpoints without authentication
                         .requestMatchers("/user/**").permitAll() // Unity loader izin
                         .anyRequest().authenticated()
                 )

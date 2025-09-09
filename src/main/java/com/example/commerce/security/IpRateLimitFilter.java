@@ -40,7 +40,7 @@ public class IpRateLimitFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         String ip = getClientIp(req);
 
-        if (req.getRequestURI().contains("/login") || req.getRequestURI().contains("/register")) {
+        if (req.getRequestURI().contains("/login") || req.getRequestURI().contains("/register") || req.getRequestURI().contains("/s3")) {
             Bucket bucket = resolveBucket(ip);
             if (bucket.tryConsume(1)) {
                 chain.doFilter(request, response);

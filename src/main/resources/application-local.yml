@@ -14,7 +14,47 @@ spring:
     password: secret123
     driver-class-name: org.postgresql.Driver
 
+  # CORS Configuration
+  web:
+    cors:
+      allowed-origins:
+        - "http://localhost:3000"
+        - "http://localhost:5173"
+        - "http://localhost:8080"
+      allowed-methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+      allowed-headers: "*"
+      allow-credentials: true
+
+# Legacy MinIO Configuration (Artık kullanılmayacak)
 minio:
   endpoint: http://localhost:9000
   accessKey: admin
   secretKey: admin123
+
+# AWS S3 Configuration
+aws:
+  s3:
+    accessKey: AKIATRW5JOHOXF2ZLZD6
+    secretKey: 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
+    region: eu-north-1
+    bucketName: projects3d
+
+# Application Configuration
+app:
+  name: Unity S3 File Server
+  version: 1.0.0
+  environment: local
+
+# Logging Configuration
+logging:
+  level:
+    com.example.commerce.s3: DEBUG
+    software.amazon.awssdk.request: DEBUG
+    org.springframework.web.cors: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
