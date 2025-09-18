@@ -37,9 +37,8 @@ public class SecurityConfig {
                 .cors(cors -> {}) // <--- bunu ekledik
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/", "/auth/**", "/index.html", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/admin-profil/**").permitAll()
-                        .requestMatchers("/s3/**").permitAll() // Allow S3 endpoints without authentication
+                        .requestMatchers("/api/s3/**").permitAll() // Allow S3 endpoints without authentication
                         .requestMatchers("/user/**").permitAll() // Unity loader izin
                         .anyRequest().authenticated()
                 )
@@ -64,7 +63,7 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000", "https://grumpy-wasps-wish.loca.lt/") // FE adresleri
+                        .allowedOriginPatterns("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
