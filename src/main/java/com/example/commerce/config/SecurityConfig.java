@@ -37,9 +37,10 @@ public class SecurityConfig {
                 .cors(cors -> {}) // <--- bunu ekledik
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> req
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/admin-profil/**").permitAll()
-                        .requestMatchers("/api/s3/**").permitAll() // Allow S3 endpoints without authentication
-                        .requestMatchers("/user/**").permitAll() // Unity loader izin
+                        .requestMatchers("/api/s3/**").permitAll()
+                        .requestMatchers("/user/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

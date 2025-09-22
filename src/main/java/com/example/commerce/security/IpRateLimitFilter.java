@@ -24,7 +24,7 @@ public class IpRateLimitFilter implements Filter {
 
     private Bucket resolveBucket(String ip) {
         return cache.get(ip, k -> {
-            Refill refill = Refill.intervally(5, Duration.ofMinutes(1)); // 5 istek/dakika
+            Refill refill = Refill.intervally(16, Duration.ofMinutes(1)); // 8 istek/dakika
             Bandwidth limit = Bandwidth.classic(5, refill);
             return Bucket.builder().addLimit(limit).build();
         });

@@ -1,6 +1,9 @@
-package com.example.commerce.awss3;
+package com.example.commerce.awss3.controller;
 
 
+import com.example.commerce.awss3.dto.LimitedUrlResponse;
+import com.example.commerce.awss3.service.S3Service;
+import com.example.commerce.awss3.dto.UrlStatusResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +13,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/s3")
-//@CrossOrigin(origins = "*", allowCredentials = "false")
 public class S3Controller {
 
     @Autowired

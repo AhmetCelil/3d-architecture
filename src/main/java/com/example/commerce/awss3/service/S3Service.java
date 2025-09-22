@@ -1,18 +1,18 @@
-package com.example.commerce.awss3;
+package com.example.commerce.awss3.service;
 
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
+import com.example.commerce.awss3.dto.LimitedUrlResponse;
+import com.example.commerce.awss3.dto.UrlStatusResponse;
+import com.example.commerce.awss3.dto.UrlUsageInfo;
+import com.example.commerce.config.S3Configuration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,67 +21,18 @@ import java.util.stream.Collectors;
 @Service
 public class S3Service {
 
-    @Value("${aws.s3.accessKey}")
-    private String accessKey;
+    @Autowired
+    private S3Client s3Client;
 
-    @Value("${aws.s3.secretKey}")
-    private String secretKey;
+    @Autowired
+    private S3Presigner s3Presigner;
 
-    @Value("${aws.s3.region:eu-north-1}")
-    private String region;
-
-    @Value("${aws.s3.bucketName:projects3d}")
-    private String bucketName;
+    @Autowired
+    private S3Configuration s3Configuration;
 
     // URL kullanım sayacı için memory cache
     private final Map<String, UrlUsageInfo> urlUsageCache = new ConcurrentHashMap<>();
 
-    // URL kullanım bilgisi için inner class
-    private static class UrlUsageInfo {
-        private int usageCount;
-        private final LocalDateTime createdAt;
-        private final int maxUsage;
-
-        public UrlUsageInfo(int maxUsage) {
-            this.usageCount = 0;
-            this.createdAt = LocalDateTime.now();
-            this.maxUsage = maxUsage;
-        }
-
-        public boolean canUse() {
-            return usageCount < maxUsage && createdAt.plusMinutes(3).isAfter(LocalDateTime.now());
-        }
-
-        public void incrementUsage() {
-            usageCount++;
-        }
-
-        public int getRemainingUsage() {
-            return maxUsage - usageCount;
-        }
-
-        public boolean isExpired() {
-            return createdAt.plusMinutes(3).isBefore(LocalDateTime.now());
-        }
-    }
-
-    private S3Client getS3Client() {
-        AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKey, secretKey);
-
-        return S3Client.builder()
-                .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
-                .build();
-    }
-
-    private S3Presigner getS3Presigner() {
-        AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKey, secretKey);
-
-        return S3Presigner.builder()
-                .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
-                .build();
-    }
 
     /**
      * 3 dakika geçerli ve maksimum 2 kez kullanılabilir presigned URL oluşturur
@@ -91,11 +42,10 @@ public class S3Service {
      * @return Sınırlı kullanım bilgisi içeren response
      */
     public LimitedUrlResponse getUnityFileUrlWithLimits(String fileName, String userEmail) {
-        try (S3Presigner presigner = getS3Presigner()) {
-
+        try {
             // Debug logları
-            System.out.println("🔍 S3 Region: " + region);
-            System.out.println("🔍 S3 Bucket: " + bucketName);
+            System.out.println("🔍 S3 Region: " + s3Configuration.getRegion());
+            System.out.println("🔍 S3 Bucket: " + s3Configuration.getBucketName());
 
             // Dosya yolu: {userEmail}/{fileName}
             String objectKey = userEmail + "/" + fileName;
@@ -111,7 +61,7 @@ public class S3Service {
 
             // 3 dakikalık presigned URL oluştur
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                    .bucket(bucketName)
+                    .bucket(s3Configuration.getBucketName())
                     .key(objectKey)
                     .build();
 
@@ -120,7 +70,7 @@ public class S3Service {
                     .getObjectRequest(getObjectRequest)
                     .build();
 
-            PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
+            PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
             String presignedUrl = presignedRequest.url().toString();
 
             // URL kullanım bilgisini cache'e kaydet
@@ -205,11 +155,10 @@ public class S3Service {
      * Eski method - geriye dönük uyumluluk için (şimdi 3 dakika geçerli)
      */
     public String getUnityFileUrl(String fileName, String userEmail) {
-        try (S3Presigner presigner = getS3Presigner()) {
-
+        try {
             // Debug logları
-            System.out.println("🔍 S3 Region: " + region);
-            System.out.println("🔍 S3 Bucket: " + bucketName);
+            System.out.println("🔍 S3 Region: " + s3Configuration.getRegion());
+            System.out.println("🔍 S3 Bucket: " + s3Configuration.getBucketName());
 
             // Dosya yolu: {userEmail}/{fileName}
             String objectKey = userEmail + "/" + fileName;
@@ -222,7 +171,7 @@ public class S3Service {
 
             // 3 dakikalık presigned URL oluştur
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                    .bucket(bucketName)
+                    .bucket(s3Configuration.getBucketName())
                     .key(objectKey)
                     .build();
 
@@ -231,7 +180,7 @@ public class S3Service {
                     .getObjectRequest(getObjectRequest)
                     .build();
 
-            PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
+            PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
             String presignedUrl = presignedRequest.url().toString();
 
             System.out.println("✅ Presigned URL oluşturuldu (3 dakika geçerli): " + presignedUrl);
@@ -254,17 +203,16 @@ public class S3Service {
         // Direkt S3 URL'si oluştur - URL encoding için %40 yerine @ kullan
         String encodedObjectKey = objectKey.replace("@", "%40");
         String directUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
-                bucketName, region, encodedObjectKey);
+                s3Configuration.getBucketName(), s3Configuration.getRegion(), encodedObjectKey);
 
         System.out.println("✅ Direkt S3 URL: " + directUrl);
         return directUrl;
     }
 
     public List<String> listUserUnityFiles(String userEmail) {
-        try (S3Client s3Client = getS3Client()) {
-
+        try {
             ListObjectsV2Request listRequest = ListObjectsV2Request.builder()
-                    .bucket(bucketName)
+                    .bucket(s3Configuration.getBucketName())
                     .prefix(userEmail + "/")
                     .build();
 
@@ -281,10 +229,9 @@ public class S3Service {
     }
 
     private boolean doesObjectExist(String objectKey) {
-        try (S3Client s3Client = getS3Client()) {
-
+        try {
             HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
-                    .bucket(bucketName)
+                    .bucket(s3Configuration.getBucketName())
                     .key(objectKey)
                     .build();
 
