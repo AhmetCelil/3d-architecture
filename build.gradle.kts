@@ -31,11 +31,6 @@ dependencyManagement {
 }
 
 dependencies {
-	// Test Dependencies
-	testImplementation("com.h2database:h2")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
 	// Spring Boot Dependencies
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
