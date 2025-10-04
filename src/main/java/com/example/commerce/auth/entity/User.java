@@ -1,8 +1,8 @@
 package com.example.commerce.auth.entity;
 
 import com.example.commerce.auth.enums.Role;
-import com.example.commerce.profilayarlama.entity.UserProfile;
-import com.example.commerce.profilayarlama.entity.CompanyProject;
+import com.example.commerce.profil.entity.UserProfile;
+import com.example.commerce.profil.entity.CompanyProject;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

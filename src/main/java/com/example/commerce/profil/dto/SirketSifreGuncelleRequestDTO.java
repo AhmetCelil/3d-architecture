@@ -1,4 +1,4 @@
-package com.example.commerce.profilayarlama.dto;
+package com.example.commerce.profil.dto;
 
 import lombok.Getter;
 import lombok.Setter;

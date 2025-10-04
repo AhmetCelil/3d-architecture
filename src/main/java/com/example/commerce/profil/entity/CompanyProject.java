@@ -1,4 +1,4 @@
-    package com.example.commerce.profilayarlama.entity;
+    package com.example.commerce.profil.entity;
 
     import com.example.commerce.auth.entity.User;
     import jakarta.persistence.*;
