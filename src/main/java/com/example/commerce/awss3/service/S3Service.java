@@ -1,8 +1,5 @@
 package com.example.commerce.awss3.service;
 
-import com.example.commerce.awss3.dto.LimitedUrlResponse;
-import com.example.commerce.awss3.dto.UrlStatusResponse;
-import com.example.commerce.awss3.dto.UrlUsageInfo;
 import com.example.commerce.config.S3Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,10 +10,6 @@ import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignReques
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Service
 public class S3Service {
@@ -30,129 +23,8 @@ public class S3Service {
     @Autowired
     private S3Configuration s3Configuration;
 
-    // URL kullanım sayacı için memory cache
-    private final Map<String, UrlUsageInfo> urlUsageCache = new ConcurrentHashMap<>();
-
-
     /**
-     * 3 dakika geçerli ve maksimum 2 kez kullanılabilir presigned URL oluşturur
-     *
-     * @param fileName  Dosya adı
-     * @param userEmail Kullanıcı email
-     * @return Sınırlı kullanım bilgisi içeren response
-     */
-    public LimitedUrlResponse getUnityFileUrlWithLimits(String fileName, String userEmail) {
-        try {
-            // Debug logları
-            System.out.println("🔍 S3 Region: " + s3Configuration.getRegion());
-            System.out.println("🔍 S3 Bucket: " + s3Configuration.getBucketName());
-
-            // Dosya yolu: {userEmail}/{fileName}
-            String objectKey = userEmail + "/" + fileName;
-            System.out.println("🔍 Object Key: " + objectKey);
-
-            // Dosya varlığını kontrol et
-            if (!doesObjectExist(objectKey)) {
-                throw new RuntimeException("Dosya bulunamadı: " + objectKey);
-            }
-
-            // Eski expired URL'leri temizle
-            cleanExpiredUrls();
-
-            // 3 dakikalık presigned URL oluştur
-            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                    .bucket(s3Configuration.getBucketName())
-                    .key(objectKey)
-                    .build();
-
-            GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                    .signatureDuration(Duration.ofSeconds(4))
-                    .getObjectRequest(getObjectRequest)
-                    .build();
-
-            PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
-            String presignedUrl = presignedRequest.url().toString();
-
-            // URL kullanım bilgisini cache'e kaydet
-            String urlId = generateUrlId(objectKey);
-            urlUsageCache.put(urlId, new UrlUsageInfo(2)); // Maksimum 2 kullanım
-
-            System.out.println("✅ Sınırlı Presigned URL oluşturuldu: " + presignedUrl);
-
-            return new LimitedUrlResponse(presignedUrl, urlId, 2, 3);
-
-        } catch (Exception e) {
-            System.out.println("❌ Hata: " + e.getMessage());
-            throw new RuntimeException("S3'den dosya URL'si alınamadı: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * URL kullanımını kontrol eder ve geçerli ise kullanım sayısını artırır
-     *
-     * @param urlId URL ID'si
-     * @return URL kullanılabilir mi?
-     */
-    public boolean validateAndUseUrl(String urlId) {
-        UrlUsageInfo usageInfo = urlUsageCache.get(urlId);
-
-        if (usageInfo == null) {
-            System.out.println("❌ URL ID bulunamadı: " + urlId);
-            return false;
-        }
-
-        if (!usageInfo.canUse()) {
-            if (usageInfo.isExpired()) {
-                System.out.println("⏰ URL süresi doldu: " + urlId);
-                urlUsageCache.remove(urlId); // Expired URL'yi temizle
-            } else {
-                System.out.println("🚫 URL kullanım limiti aşıldı: " + urlId +
-                        " (Kalan: " + usageInfo.getRemainingUsage() + ")");
-            }
-            return false;
-        }
-
-        usageInfo.incrementUsage();
-        System.out.println("✅ URL kullanıldı: " + urlId +
-                " (Kalan kullanım: " + usageInfo.getRemainingUsage() + ")");
-        return true;
-    }
-
-    /**
-     * URL kullanım durumunu sorgular
-     */
-    public UrlStatusResponse getUrlStatus(String urlId) {
-        UrlUsageInfo usageInfo = urlUsageCache.get(urlId);
-
-        if (usageInfo == null) {
-            return new UrlStatusResponse(false, 0, false, "URL bulunamadı");
-        }
-
-        return new UrlStatusResponse(
-                usageInfo.canUse(),
-                usageInfo.getRemainingUsage(),
-                usageInfo.isExpired(),
-                usageInfo.canUse() ? "Kullanılabilir" :
-                        usageInfo.isExpired() ? "Süresi doldu" : "Kullanım limiti aşıldı"
-        );
-    }
-
-    /**
-     * Süresi dolmuş URL'leri temizler
-     */
-    private void cleanExpiredUrls() {
-        urlUsageCache.entrySet().removeIf(entry -> entry.getValue().isExpired());
-    }
-
-    /**
-     * URL için benzersiz ID oluşturur
-     */
-    private String generateUrlId(String objectKey) {
-        return String.valueOf((objectKey + System.currentTimeMillis()).hashCode());
-    }
-
-    /**
-     * Eski method - geriye dönük uyumluluk için (şimdi 3 dakika geçerli)
+     * 5 saniye geçerli presigned URL oluşturur
      */
     public String getUnityFileUrl(String fileName, String userEmail) {
         try {
@@ -169,7 +41,7 @@ public class S3Service {
                 throw new RuntimeException("Dosya bulunamadı: " + objectKey);
             }
 
-            // 3 dakikalık presigned URL oluştur
+            // 5 saniyelik presigned URL oluştur
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                     .bucket(s3Configuration.getBucketName())
                     .key(objectKey)
@@ -183,48 +55,12 @@ public class S3Service {
             PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
             String presignedUrl = presignedRequest.url().toString();
 
-            System.out.println("✅ Presigned URL oluşturuldu (3 dakika geçerli): " + presignedUrl);
+            System.out.println("✅ Presigned URL oluşturuldu (5 saniye geçerli): " + presignedUrl);
             return presignedUrl;
 
         } catch (Exception e) {
             System.out.println("❌ Hata: " + e.getMessage());
             throw new RuntimeException("S3'den dosya URL'si alınamadı: " + e.getMessage(), e);
-        }
-    }
-
-    public String getDirectS3Url(String fileName, String userEmail) {
-        String objectKey = userEmail + "/" + fileName;
-
-        // Dosya varlığını kontrol et
-        if (!doesObjectExist(objectKey)) {
-            throw new RuntimeException("Dosya bulunamadı: " + objectKey);
-        }
-
-        // Direkt S3 URL'si oluştur - URL encoding için %40 yerine @ kullan
-        String encodedObjectKey = objectKey.replace("@", "%40");
-        String directUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
-                s3Configuration.getBucketName(), s3Configuration.getRegion(), encodedObjectKey);
-
-        System.out.println("✅ Direkt S3 URL: " + directUrl);
-        return directUrl;
-    }
-
-    public List<String> listUserUnityFiles(String userEmail) {
-        try {
-            ListObjectsV2Request listRequest = ListObjectsV2Request.builder()
-                    .bucket(s3Configuration.getBucketName())
-                    .prefix(userEmail + "/")
-                    .build();
-
-            ListObjectsV2Response listResponse = s3Client.listObjectsV2(listRequest);
-
-            return listResponse.contents().stream()
-                    .map(S3Object::key)
-                    .map(key -> key.substring(key.lastIndexOf("/") + 1)) // Sadece dosya adını al
-                    .collect(Collectors.toList());
-
-        } catch (Exception e) {
-            throw new RuntimeException("Kullanıcı dosyaları listelenemedi: " + e.getMessage(), e);
         }
     }
 
