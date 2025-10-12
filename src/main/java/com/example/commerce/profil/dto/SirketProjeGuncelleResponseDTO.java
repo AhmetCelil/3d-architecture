@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SirketProjeAyarlaResponseDTO extends BaseResponseDto {
+public class SirketProjeGuncelleResponseDTO extends BaseResponseDto {
     private Long projectId;
 }

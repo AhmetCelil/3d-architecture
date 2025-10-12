@@ -1,6 +1,8 @@
 package com.example.commerce.awss3.service;
 
 import com.example.commerce.config.S3Configuration;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -12,15 +14,11 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 import java.time.Duration;
 
 @Service
+@AllArgsConstructor
 public class S3Service {
 
-    @Autowired
     private S3Client s3Client;
-
-    @Autowired
     private S3Presigner s3Presigner;
-
-    @Autowired
     private S3Configuration s3Configuration;
 
     /**

@@ -1,20 +1,32 @@
-spring:
-  config:
-    activate:
-      on-profile: local
+# application-local.yml
 
+spring:
   servlet:
     multipart:
-      max-file-size: 1GB
-      max-request-size: 1GB
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 100MB
+      file-size-threshold: 2KB
 
+
+  # ===== DATABASE CONFIGURATION =====
   datasource:
     url: jdbc:postgresql://localhost:5432/commerce
     username: user
     password: secret123
     driver-class-name: org.postgresql.Driver
 
-  # CORS Configuration
+  # ===== JPA/HIBERNATE =====
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # ===== CORS CONFIGURATION =====
   web:
     cors:
       allowed-origins:
@@ -30,13 +42,28 @@ spring:
       allowed-headers: "*"
       allow-credentials: true
 
-# Legacy MinIO Configuration (Artık kullanılmayacak)
-minio:
-  endpoint: http://localhost:9000
-  accessKey: admin
-  secretKey: admin123
+# ===== SERVER CONFIGURATION =====
+server:
+  tomcat:
+    max-http-form-post-size: 52428800  # 50MB
+    max-parameter-count: 20000
+    max-http-header-size: 8KB
+    threads:
+      max: 200
+      min-spare: 10
+  port: 8080
 
-# AWS S3 Configuration
+# ===== LOGGING =====
+logging:
+  level:
+    org.apache.tomcat.util.http.fileupload: DEBUG
+    org.springframework.web.multipart: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.example.commerce: DEBUG
+    org.springframework.security: DEBUG
+
+# ===== AWS S3 CONFIGURATION =====
 aws:
   s3:
     accessKey: AKIATRW5JOHOXF2ZLZD6
@@ -44,17 +71,8 @@ aws:
     region: eu-north-1
     bucketName: projects3d
 
-# Application Configuration
+# ===== APPLICATION CONFIGURATION =====
 app:
   name: Unity S3 File Server
   version: 1.0.0
   environment: local
-
-# Logging Configuration
-logging:
-  level:
-    com.example.commerce.s3: DEBUG
-    software.amazon.awssdk.request: DEBUG
-    org.springframework.web.cors: DEBUG
-  pattern:
-    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

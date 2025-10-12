@@ -5,63 +5,46 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <!-- 1) USER SEQUENCE -->
-    <changeSet id="202507291108" author="ahmet.celil.yalman">
+    <!-- 1️⃣ USER SEQUENCE -->
+    <changeSet id="20251012-01" author="ahmet.celil.yalman">
         <createSequence sequenceName="user_sequence" startValue="1" incrementBy="1"/>
     </changeSet>
 
-    <!-- 2) USERS -->
-    <changeSet id="202507291109" author="ahmet.celil.yalman">
-         <createTable tableName="users">
+    <!-- 2️⃣ USERS -->
+    <changeSet id="20251012-02" author="ahmet.celil.yalman">
+        <createTable tableName="users">
             <column name="id" type="BIGINT">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-
             <column name="email" type="VARCHAR(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
-
             <column name="password" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-
             <column name="role" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-
             <column name="enabled" type="BOOLEAN" defaultValueBoolean="true"/>
         </createTable>
-
-        <!-- (Opsiyonel) email için ayrı unique index -->
-        <createIndex tableName="users" indexName="idx_users_email" unique="true">
-            <column name="email"/>
-        </createIndex>
     </changeSet>
 
-    <!-- 3) USER_PROFILES (1-1) -->
-    <changeSet id="202507291110" author="ahmet.celil.yalman">
+    <!-- 3️⃣ USER_PROFILES -->
+    <changeSet id="20251012-03" author="ahmet.celil.yalman">
         <createTable tableName="user_profiles">
-            <column name="id" type="BIGINT" autoIncrement="true">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-
-            <!-- SpringPhysicalNamingStrategy ile camelCase -> snake_case uyumlu -->
             <column name="first_name" type="VARCHAR(255)"/>
             <column name="last_name" type="VARCHAR(255)"/>
             <column name="phone_number" type="VARCHAR(255)"/>
             <column name="address" type="VARCHAR(255)"/>
             <column name="profile_picture" type="VARCHAR(255)"/>
             <column name="description" type="TEXT"/>
-
             <column name="user_id" type="BIGINT">
                 <constraints nullable="false" unique="true"/>
             </column>
         </createTable>
-
-        <!-- FK + index -->
-        <createIndex tableName="user_profiles" indexName="idx_user_profiles_user_id">
-            <column name="user_id"/>
-        </createIndex>
 
         <addForeignKeyConstraint
                 baseTableName="user_profiles"
@@ -72,27 +55,34 @@
                 onDelete="CASCADE"/>
     </changeSet>
 
-    <!-- 4) COMPANY_PROJECTS (1-N) -->
-    <changeSet id="202507291111" author="ahmet.celil.yalman">
+    <!-- 4️⃣ COMPANY_PROJECTS -->
+    <changeSet id="20251012-04" author="ahmet.celil.yalman">
         <createTable tableName="company_projects">
-            <column name="id" type="BIGINT" autoIncrement="true">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-
-            <column name="project_name" type="VARCHAR(255)"/>
-            <column name="description" type="TEXT"/>
+            <column name="project_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="location" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_area" type="DOUBLE PRECISION"/>
             <column name="start_date" type="DATE"/>
             <column name="end_date" type="DATE"/>
-
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="duration_months" type="INTEGER"/>
+            <column name="description" type="TEXT"/>
+            <column name="technical_specifications" type="TEXT"/>
             <column name="user_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-
-        <!-- FK + index -->
-        <createIndex tableName="company_projects" indexName="idx_company_projects_user_id">
-            <column name="user_id"/>
-        </createIndex>
 
         <addForeignKeyConstraint
                 baseTableName="company_projects"
@@ -103,12 +93,68 @@
                 onDelete="CASCADE"/>
     </changeSet>
 
-    <!-- 5) COMPANY_PROJECTS FILE_PATH EKLE -->
-    <changeSet id="202508141200" author="ahmet.celil.yalman">
-        <addColumn tableName="company_projects">
-            <column name="file_path" type="VARCHAR(255)"/>
-        </addColumn>
+    <!-- 5️⃣ PROJECT_FEATURES (ElementCollection) -->
+    <changeSet id="20251012-05" author="ahmet.celil.yalman">
+        <createTable tableName="project_features">
+            <column name="project_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="feature" type="VARCHAR(255)"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="project_features"
+                baseColumnNames="project_id"
+                constraintName="fk_project_features_project"
+                referencedTableName="company_projects"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
     </changeSet>
 
+    <!-- 6️⃣ PROJECT_IMAGES (BYTEA - Görseller) -->
+    <changeSet id="20251012-06" author="ahmet.celil.yalman">
+        <createTable tableName="project_images">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="file_name" type="VARCHAR(255)"/>
+            <column name="file_type" type="VARCHAR(100)"/>
+            <column name="image_data" type="BYTEA"/>
+            <column name="project_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="project_images"
+                baseColumnNames="project_id"
+                constraintName="fk_project_images_project"
+                referencedTableName="company_projects"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+    <!-- 7️⃣ PROJECT_FILES (BYTEA - Kat planları veya PDF) -->
+    <changeSet id="20251012-07" author="ahmet.celil.yalman">
+        <createTable tableName="project_files">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="file_name" type="VARCHAR(255)"/>
+            <column name="file_type" type="VARCHAR(100)"/>
+            <column name="file_data" type="BYTEA"/>
+            <column name="project_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="project_files"
+                baseColumnNames="project_id"
+                constraintName="fk_project_files_project"
+                referencedTableName="company_projects"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
 
 </databaseChangeLog>

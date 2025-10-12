@@ -5,5 +5,5 @@ import lombok.*;
 
 @Getter
 @Setter
-public class SirketProfilAyarlaResponseDTO extends BaseResponseDto {
+public class SirketProjeSilResponseDTO extends BaseResponseDto {
 }
