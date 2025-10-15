@@ -53,9 +53,6 @@ dependencies {
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
-	// MinIO (Legacy - silinebilir)
-	implementation("io.minio:minio:8.5.2")
-
 	// AWS S3 Dependencies - explicit versions required
 	implementation("software.amazon.awssdk:s3:2.21.29")
 	implementation("software.amazon.awssdk:auth:2.21.29")
@@ -63,6 +60,9 @@ dependencies {
 	// Lombok
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
+
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
+
 }
 
 tasks.withType<Test> {
