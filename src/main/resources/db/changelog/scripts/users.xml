@@ -78,7 +78,6 @@
             </column>
             <column name="duration_months" type="INTEGER"/>
             <column name="description" type="TEXT"/>
-            <column name="technical_specifications" type="TEXT"/>
             <column name="user_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -93,8 +92,26 @@
                 onDelete="CASCADE"/>
     </changeSet>
 
-    <!-- 5️⃣ PROJECT_FEATURES (ElementCollection) -->
+    <!-- 5️⃣ PROJECT_TECHNICAL_SPECS (ElementCollection) -->
     <changeSet id="20251012-05" author="ahmet.celil.yalman">
+        <createTable tableName="project_technical_specs">
+            <column name="project_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="specification" type="VARCHAR(500)"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="project_technical_specs"
+                baseColumnNames="project_id"
+                constraintName="fk_project_technical_specs_project"
+                referencedTableName="company_projects"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+    <!-- 6️⃣ PROJECT_FEATURES (ElementCollection) -->
+    <changeSet id="20251012-06" author="ahmet.celil.yalman">
         <createTable tableName="project_features">
             <column name="project_id" type="BIGINT">
                 <constraints nullable="false"/>
@@ -111,8 +128,8 @@
                 onDelete="CASCADE"/>
     </changeSet>
 
-    <!-- 6️⃣ PROJECT_IMAGES (BYTEA - Görseller) -->
-    <changeSet id="20251012-06" author="ahmet.celil.yalman">
+    <!-- 7️⃣ PROJECT_IMAGES (BYTEA - Görseller) -->
+    <changeSet id="20251012-07" author="ahmet.celil.yalman">
         <createTable tableName="project_images">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
@@ -134,8 +151,8 @@
                 onDelete="CASCADE"/>
     </changeSet>
 
-    <!-- 7️⃣ PROJECT_FILES (BYTEA - Kat planları veya PDF) -->
-    <changeSet id="20251012-07" author="ahmet.celil.yalman">
+    <!-- 8️⃣ PROJECT_FILES (BYTEA - Kat planları veya PDF) -->
+    <changeSet id="20251013-08" author="ahmet.celil.yalman">
         <createTable tableName="project_files">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>

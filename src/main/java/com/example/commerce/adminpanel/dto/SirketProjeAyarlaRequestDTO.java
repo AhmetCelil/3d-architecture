@@ -23,8 +23,13 @@ public class SirketProjeAyarlaRequestDTO {
     private ProjectStatus status;
     private Integer durationMonths;
     private String description;
-    private String technicalSpecifications;
+
+    // ✅ TEKNİK ÖZELLİKLER - LİSTE
+    private List<String> technicalSpecifications;
+
     private List<String> features;
+
+    // GÖRSELLER VE KAT PLANLARI - JPEG, PNG, PDF
     private List<MultipartFile> images;
     private List<MultipartFile> floorPlans;
 }

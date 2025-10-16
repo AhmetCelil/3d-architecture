@@ -12,7 +12,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "company_projects")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -22,13 +23,12 @@ public class CompanyProject {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // === TEMEL PROJE BİLGİLERİ ===
     @Column(nullable = false)
     private String projectName;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ProjectCategory category; // KONUT, TICARI, ENDÜSTRIYEL
+    private ProjectCategory category;
 
     @Column(nullable = false)
     private String location;
@@ -44,7 +44,7 @@ public class CompanyProject {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ProjectStatus status; // PLANLANIYOR, DEVAM_EDIYOR, TAMAMLANDI
+    private ProjectStatus status;
 
     @Column(name = "duration_months")
     private Integer durationMonths;
@@ -52,37 +52,34 @@ public class CompanyProject {
     @Column(length = 2000)
     private String description;
 
-    // === GÖRSELLER (PNG, JPEG) ===
+    // GÖRSELLER (PNG, JPEG, PDF)
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<ProjectImage> images = new ArrayList<>();
 
-    // === TEKNİK ÖZELLİKLER ===
-    @Column(name = "technical_specifications", length = 2000)
-    private String technicalSpecifications;
+    // ✅ TEKNİK ÖZELLİKLER - LİSTE OLARAK
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "project_technical_specs", joinColumns = @JoinColumn(name = "project_id"))
+    @Column(name = "specification", length = 500)
+    @Builder.Default
+    private List<String> technicalSpecifications = new ArrayList<>();
 
-    // === PROJE ÖZELLİKLERİ ===
+    // PROJE ÖZELLİKLERİ
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "project_features", joinColumns = @JoinColumn(name = "project_id"))
     @Column(name = "feature")
     @Builder.Default
     private List<String> features = new ArrayList<>();
 
-    // === KAT PLANLARI (PDF veya GÖRSEL) ===
+    // KAT PLANLARI (PDF, PNG, JPEG)
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<ProjectFile> floorPlans = new ArrayList<>();
 
-    // === KULLANICI İLİŞKİSİ ===
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // === HELPER METHODS ===
-
-    /**
-     * İlişkileri düzgün kurmak için helper metod
-     */
     public void addImage(ProjectImage image) {
         if (this.images == null) {
             this.images = new ArrayList<>();
@@ -99,10 +96,6 @@ public class CompanyProject {
         floorPlan.setProject(this);
     }
 
-    /**
-     * toString'de Lazy loading problemlerini önlemek için
-     * Lazy-loaded alanları (user, images, floorPlans, features) dahil etmeyin
-     */
     @Override
     public String toString() {
         return "CompanyProject{" +
@@ -111,15 +104,9 @@ public class CompanyProject {
                 ", category=" + category +
                 ", location='" + location + '\'' +
                 ", status=" + status +
-                ", totalArea=" + totalArea +
-                ", startDate=" + startDate +
-                ", endDate=" + endDate +
                 '}';
     }
 
-    /**
-     * equals ve hashCode - sadece id kullan
-     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

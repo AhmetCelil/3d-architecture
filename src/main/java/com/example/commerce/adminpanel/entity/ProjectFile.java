@@ -5,7 +5,8 @@ import lombok.*;
 
 @Entity
 @Table(name = "project_files")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -16,10 +17,10 @@ public class ProjectFile {
     private Long id;
 
     private String fileName;
-    private String fileType; // örn: application/pdf, image/png
+    private String fileType;
 
     @Lob
-    @Column(name = "file_data", columnDefinition = "BYTEA")
+    @Column(name = "file_data", columnDefinition = "bytea")
     private byte[] fileData;
 
     @ManyToOne(fetch = FetchType.LAZY)

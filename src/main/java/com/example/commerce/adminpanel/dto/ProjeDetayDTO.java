@@ -1,3 +1,4 @@
+// ========== ProjeDetayDTO.java ==========
 package com.example.commerce.adminpanel.dto;
 
 import com.example.commerce.adminpanel.enums.ProjectCategory;
@@ -25,7 +26,10 @@ public class ProjeDetayDTO {
     private ProjectStatus status;
     private Integer durationMonths;
     private String description;
-    private String technicalSpecifications;
+
+    // ✅ TEKNİK ÖZELLİKLER - LİSTE
+    private List<String> technicalSpecifications;
+
     private List<String> features;
     private Integer imageCount;
     private Integer floorPlanCount;

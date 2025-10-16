@@ -23,10 +23,13 @@ public class SirketProjeGuncelleRequestDTO {
     private ProjectStatus status;
     private Integer durationMonths;
     private String description;
-    private String technicalSpecifications;
+
+    // ✅ TEKNİK ÖZELLİKLER - LİSTE
+    private List<String> technicalSpecifications;
+
     private List<String> features;
+
+    // YENİ DOSYALAR
     private List<MultipartFile> newImages;
     private List<MultipartFile> newFloorPlans;
-    private List<Long> imageIdsToDelete;
-    private List<Long> floorPlanIdsToDelete;
 }
