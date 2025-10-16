@@ -1,4 +1,4 @@
-package com.example.commerce.adminpanel.service;
+package com.example.commerce.superadminpanel.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

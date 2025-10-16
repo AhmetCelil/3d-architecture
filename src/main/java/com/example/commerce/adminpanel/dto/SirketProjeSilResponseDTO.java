@@ -1,4 +1,4 @@
-package com.example.commerce.profil.dto;
+package com.example.commerce.adminpanel.dto;
 
 import com.example.commerce.basedtos.BaseResponseDto;
 import lombok.*;

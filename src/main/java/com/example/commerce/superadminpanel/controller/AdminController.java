@@ -1,4 +1,4 @@
-package com.example.commerce.adminpanel.controller;
+package com.example.commerce.superadminpanel.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;

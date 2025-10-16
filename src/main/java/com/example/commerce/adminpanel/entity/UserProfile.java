@@ -1,4 +1,4 @@
-package com.example.commerce.profil.entity;
+package com.example.commerce.adminpanel.entity;
 
 import com.example.commerce.auth.entity.User;
 import jakarta.persistence.*;

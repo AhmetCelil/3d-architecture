@@ -1,4 +1,4 @@
-package com.example.commerce.profil.enums;
+package com.example.commerce.adminpanel.enums;
 
 public enum ProjectCategory {
     KONUT,

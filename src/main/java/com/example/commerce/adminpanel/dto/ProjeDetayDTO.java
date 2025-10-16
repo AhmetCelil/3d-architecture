@@ -1,11 +1,11 @@
-package com.example.commerce.profil.dto;
+package com.example.commerce.adminpanel.dto;
 
-import com.example.commerce.profil.enums.ProjectCategory;
-import com.example.commerce.profil.enums.ProjectStatus;
+import com.example.commerce.adminpanel.enums.ProjectCategory;
+import com.example.commerce.adminpanel.enums.ProjectStatus;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,7 +13,9 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SirketProjeGuncelleRequestDTO {
+@Builder
+public class ProjeDetayDTO {
+    private Long id;
     private String projectName;
     private ProjectCategory category;
     private String location;
@@ -25,8 +27,6 @@ public class SirketProjeGuncelleRequestDTO {
     private String description;
     private String technicalSpecifications;
     private List<String> features;
-    private List<MultipartFile> newImages;
-    private List<MultipartFile> newFloorPlans;
-    private List<Long> imageIdsToDelete;
-    private List<Long> floorPlanIdsToDelete;
+    private Integer imageCount;
+    private Integer floorPlanCount;
 }

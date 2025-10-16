@@ -1,7 +1,7 @@
-package com.example.commerce.profil.dto;
+package com.example.commerce.adminpanel.dto;
 
-import com.example.commerce.profil.enums.ProjectCategory;
-import com.example.commerce.profil.enums.ProjectStatus;
+import com.example.commerce.adminpanel.enums.ProjectCategory;
+import com.example.commerce.adminpanel.enums.ProjectStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SirketProjeAyarlaRequestDTO {
+public class SirketProjeGuncelleRequestDTO {
     private String projectName;
     private ProjectCategory category;
     private String location;
@@ -25,6 +25,8 @@ public class SirketProjeAyarlaRequestDTO {
     private String description;
     private String technicalSpecifications;
     private List<String> features;
-    private List<MultipartFile> images;
-    private List<MultipartFile> floorPlans;
+    private List<MultipartFile> newImages;
+    private List<MultipartFile> newFloorPlans;
+    private List<Long> imageIdsToDelete;
+    private List<Long> floorPlanIdsToDelete;
 }

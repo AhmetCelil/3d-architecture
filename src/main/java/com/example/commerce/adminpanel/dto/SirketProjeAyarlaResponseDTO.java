@@ -1,4 +1,4 @@
-package com.example.commerce.profil.dto;
+package com.example.commerce.adminpanel.dto;
 
 import com.example.commerce.basedtos.BaseResponseDto;
 import lombok.AllArgsConstructor;
@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SirketProjeGuncelleResponseDTO extends BaseResponseDto {
+public class SirketProjeAyarlaResponseDTO extends BaseResponseDto {
     private Long projectId;
 }

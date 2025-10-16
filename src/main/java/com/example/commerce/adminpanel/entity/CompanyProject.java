@@ -1,8 +1,8 @@
-package com.example.commerce.profil.entity;
+package com.example.commerce.adminpanel.entity;
 
 import com.example.commerce.auth.entity.User;
-import com.example.commerce.profil.enums.ProjectCategory;
-import com.example.commerce.profil.enums.ProjectStatus;
+import com.example.commerce.adminpanel.enums.ProjectCategory;
+import com.example.commerce.adminpanel.enums.ProjectStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

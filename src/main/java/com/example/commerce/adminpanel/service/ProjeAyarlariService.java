@@ -1,21 +1,19 @@
-package com.example.commerce.profil.service;
+package com.example.commerce.adminpanel.service;
 
+import com.example.commerce.adminpanel.dto.*;
+import com.example.commerce.adminpanel.entity.CompanyProject;
+import com.example.commerce.adminpanel.entity.ProjectFile;
+import com.example.commerce.adminpanel.entity.ProjectImage;
+import com.example.commerce.adminpanel.repository.CompanyProjectRepository;
 import com.example.commerce.auth.entity.User;
 import com.example.commerce.auth.repository.UserRepository;
 import com.example.commerce.basedtos.AppMessageType;
 import com.example.commerce.exception.BusinessServiceException;
 import com.example.commerce.exception.ValidationServiceException;
-import com.example.commerce.profil.dto.*;
-import com.example.commerce.profil.entity.CompanyProject;
-import com.example.commerce.profil.entity.ProjectFile;
-import com.example.commerce.profil.entity.ProjectImage;
-import com.example.commerce.profil.entity.UserProfile;
-import com.example.commerce.profil.repository.CompanyProjectRepository;
 import com.example.commerce.util.AppMessageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ProfilServiceImpl {
+public class ProjeAyarlariService {
 
     // Message Constants
     private static final String MSG_SIFRE_DEGISTIRILDI = "profil.sifre.degistirildi";
@@ -47,90 +45,10 @@ public class ProfilServiceImpl {
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * Şirket şifresini günceller
-     */
-    @Transactional
-    public SirketSifreGuncelleResponseDTO sirketSifreGuncelle(SirketSifreGuncelleRequestDTO requestDTO) {
-        SirketSifreGuncelleResponseDTO responseDTO = new SirketSifreGuncelleResponseDTO();
-
-        try {
-            User user = getAuthenticatedUser();
-
-            // Şifre validasyonu
-            if (requestDTO.getYeniSirketParola() == null || requestDTO.getYeniSirketParola().isBlank()) {
-                throw new ValidationServiceException(MSG_SIFRE_UZUNLUK_HATASI, "Şifre boş olamaz");
-            }
-
-            if (requestDTO.getYeniSirketParola().length() < 4 || requestDTO.getYeniSirketParola().length() > 40) {
-                throw new ValidationServiceException(MSG_SIFRE_UZUNLUK_HATASI,
-                        "Şifre uzunluğu 4 ile 40 karakter arasında olmalıdır");
-            }
-
-            String encodedPassword = passwordEncoder.encode(requestDTO.getYeniSirketParola());
-            user.setPassword(encodedPassword);
-            userRepository.save(user);
-
-            responseDTO.setMessages(List.of(
-                    AppMessageUtil.createWithCode(MSG_SIFRE_DEGISTIRILDI, AppMessageType.SUCCESS)
-            ));
-
-        } catch (ValidationServiceException | BusinessServiceException ex) {
-            responseDTO.setMessages(List.of(
-                    AppMessageUtil.create(ex.getCause().toString(), ex.getMessage(), AppMessageType.ERROR)
-            ));
-        } catch (Exception ex) {
-            responseDTO.setMessages(List.of(
-                    AppMessageUtil.create("HATA", "Beklenmeyen bir hata oluştu", AppMessageType.ERROR)
-            ));
-        }
-
-        return responseDTO;
-    }
-
-    /**
-     * Şirket profil bilgilerini ayarlar veya günceller
-     */
-    @Transactional
-    public SirketProfilAyarlaResponseDTO sirketProfilAyarla(SirketProfilAyarlaRequestDTO requestDTO) {
-        SirketProfilAyarlaResponseDTO responseDTO = new SirketProfilAyarlaResponseDTO();
-
-        try {
-            User user = getAuthenticatedUser();
-
-            UserProfile profile = user.getUserProfile();
-            if (profile == null) {
-                profile = new UserProfile();
-                profile.setUser(user);
-                user.setUserProfile(profile);
-            }
-
-            profile.setFirstName(requestDTO.getFirstName());
-            profile.setLastName(requestDTO.getLastName());
-            profile.setPhoneNumber(requestDTO.getPhoneNumber());
-            profile.setAddress(requestDTO.getAddress());
-            profile.setProfilePicture(requestDTO.getProfilePicture());
-            profile.setDescription(requestDTO.getDescription());
-
-            userRepository.save(user);
-
-            responseDTO.setMessages(List.of(
-                    AppMessageUtil.createWithCode(MSG_PROFIL_BILGISI_AYARLANDI, AppMessageType.SUCCESS)
-            ));
-
-        } catch (BusinessServiceException ex) {
-            responseDTO.setMessages(List.of(
-                    AppMessageUtil.create(ex.getCause().toString(), ex.getMessage(), AppMessageType.ERROR)
-            ));
-        }
-
-        return responseDTO;
-    }
-
-    /**
      * Yeni şirket projesi ekler (tüm alanlarla)
      */
     @Transactional
-    public SirketProjeAyarlaResponseDTO sirketProjesiAyarla(SirketProjeAyarlaRequestDTO requestDTO) {
+    public SirketProjeAyarlaResponseDTO projeEkle(SirketProjeAyarlaRequestDTO requestDTO) {
         SirketProjeAyarlaResponseDTO responseDTO = new SirketProjeAyarlaResponseDTO();
 
         try {
@@ -215,7 +133,7 @@ public class ProfilServiceImpl {
      * Mevcut projeyi günceller
      */
     @Transactional
-    public SirketProjeGuncelleResponseDTO sirketProjesiGuncelle(Long projectId, SirketProjeGuncelleRequestDTO requestDTO) {
+    public SirketProjeGuncelleResponseDTO projeGuncelle(Long projectId, SirketProjeGuncelleRequestDTO requestDTO) {
         SirketProjeGuncelleResponseDTO responseDTO = new SirketProjeGuncelleResponseDTO();
 
         try {
@@ -310,7 +228,7 @@ public class ProfilServiceImpl {
      * Projeyi siler
      */
     @Transactional
-    public SirketProjeSilResponseDTO sirketProjesiSil(Long projectId) {
+    public SirketProjeSilResponseDTO projeSil(Long projectId) {
         SirketProjeSilResponseDTO responseDTO = new SirketProjeSilResponseDTO();
 
         try {
@@ -342,7 +260,7 @@ public class ProfilServiceImpl {
     /**
      * Kullanıcının tüm projelerini listeler
      */
-    public SirketProjelerListeleResponseDTO sirketProjeleriniListele() {
+    public SirketProjelerListeleResponseDTO projeListele() {
         SirketProjelerListeleResponseDTO responseDTO = new SirketProjelerListeleResponseDTO();
 
         try {

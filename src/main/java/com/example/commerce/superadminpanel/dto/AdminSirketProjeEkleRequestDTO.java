@@ -1,4 +1,4 @@
-package com.example.commerce.adminpanel.dto;
+package com.example.commerce.superadminpanel.dto;
 
 import lombok.Getter;
 import lombok.Setter;
