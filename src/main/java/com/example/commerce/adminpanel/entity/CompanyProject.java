@@ -1,8 +1,8 @@
 package com.example.commerce.adminpanel.entity;
 
-import com.example.commerce.auth.entity.User;
 import com.example.commerce.adminpanel.enums.ProjectCategory;
 import com.example.commerce.adminpanel.enums.ProjectStatus;
+import com.example.commerce.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -52,12 +52,6 @@ public class CompanyProject {
     @Column(length = 2000)
     private String description;
 
-    // GÖRSELLER (PNG, JPEG, PDF)
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<ProjectImage> images = new ArrayList<>();
-
-    // ✅ TEKNİK ÖZELLİKLER - LİSTE OLARAK
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "project_technical_specs", joinColumns = @JoinColumn(name = "project_id"))
     @Column(name = "specification", length = 500)
@@ -71,52 +65,10 @@ public class CompanyProject {
     @Builder.Default
     private List<String> features = new ArrayList<>();
 
-    // KAT PLANLARI (PDF, PNG, JPEG)
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<ProjectFile> floorPlans = new ArrayList<>();
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public void addImage(ProjectImage image) {
-        if (this.images == null) {
-            this.images = new ArrayList<>();
-        }
-        this.images.add(image);
-        image.setProject(this);
-    }
+    private boolean deleted = false; // soft delete alanı
 
-    public void addFloorPlan(ProjectFile floorPlan) {
-        if (this.floorPlans == null) {
-            this.floorPlans = new ArrayList<>();
-        }
-        this.floorPlans.add(floorPlan);
-        floorPlan.setProject(this);
-    }
-
-    @Override
-    public String toString() {
-        return "CompanyProject{" +
-                "id=" + id +
-                ", projectName='" + projectName + '\'' +
-                ", category=" + category +
-                ", location='" + location + '\'' +
-                ", status=" + status +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CompanyProject)) return false;
-        CompanyProject that = (CompanyProject) o;
-        return id != null && id.equals(that.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }

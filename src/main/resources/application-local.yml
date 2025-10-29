@@ -1,11 +1,11 @@
 # application-local.yml
 spring:
   servlet:
-    multipart:
-      enabled: true
-      max-file-size: 50MB
-      max-request-size: 100MB
-      file-size-threshold: 2KB
+    jackson:
+      deserialization:
+        fail-on-unknown-properties: false
+      mapper:
+        accept-case-insensitive-enums: true
 
 
   # ===== DATABASE CONFIGURATION =====

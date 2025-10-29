@@ -5,10 +5,8 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <!-- Tablo oluşturma dosyalarını dahil et -->
-    <include file="/db/changelog/scripts/users.xml"/>
-
-    <!-- Varsa veri ekleme dosyaları -->
-    <!--<include file="db/changelog/data/initial_data.xml"/>-->
+    <include file="db/changelog/scripts/create-users.xml"/>
+    <include file="db/changelog/scripts/create-user-profiles.xml"/>
+    <include file="db/changelog/scripts/create-company-projects.xml"/>
 
 </databaseChangeLog>

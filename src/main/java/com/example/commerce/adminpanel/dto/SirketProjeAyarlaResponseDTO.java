@@ -1,13 +1,11 @@
 package com.example.commerce.adminpanel.dto;
 
 import com.example.commerce.basedtos.BaseResponseDto;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 public class SirketProjeAyarlaResponseDTO extends BaseResponseDto {
-    private Long projectId;
+
 }

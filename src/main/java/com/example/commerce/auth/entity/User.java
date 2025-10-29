@@ -44,34 +44,4 @@ public class User {
     @Builder.Default
     private List<CompanyProject> projects = new ArrayList<>();
 
-    /**
-     * ÇÖZÜM: toString metodunu override ederek lazy-loaded alanları hariç tutun
-     * Bu sayede debugging sırasında Hibernate session kapalı olsa bile hata almayız
-     */
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", role=" + role +
-                ", enabled=" + enabled +
-                '}';
-    }
-
-    /**
-     * OPSIYONEL: equals ve hashCode da override edin
-     * Lazy loading problemlerini önlemek için sadece id kullanın
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof User)) return false;
-        User user = (User) o;
-        return id != null && id.equals(user.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }

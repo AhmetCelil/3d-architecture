@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="003-create-company-projects" author="ahmetcelil">
+
+        <createTable tableName="company_projects">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="project_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="category" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="location" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="total_area" type="DECIMAL(15,2)"/>
+            <column name="start_date" type="DATE"/>
+            <column name="end_date" type="DATE"/>
+
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="duration_months" type="INT"/>
+            <column name="description" type="TEXT"/>
+
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_companyproject_user"
+                             referencedTableName="users"
+                             referencedColumnNames="id"/>
+            </column>
+
+            <!-- ✅ Soft delete alanı -->
+            <column name="deleted" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <!-- Teknik özellikler için ayrı tablo -->
+        <createTable tableName="project_technical_specs">
+            <column name="project_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_techspec_project"
+                             referencedTableName="company_projects"
+                             referencedColumnNames="id"/>
+            </column>
+            <column name="specification" type="VARCHAR(500)"/>
+        </createTable>
+
+        <!-- Özellikler için ayrı tablo -->
+        <createTable tableName="project_features">
+            <column name="project_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_feature_project"
+                             referencedTableName="company_projects"
+                             referencedColumnNames="id"/>
+            </column>
+            <column name="feature" type="VARCHAR(255)"/>
+        </createTable>
+
+    </changeSet>
+
+</databaseChangeLog>
