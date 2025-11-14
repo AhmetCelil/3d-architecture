@@ -1,0 +1,20 @@
+package com.example.commerce.adminpanel.dto;
+
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+// Dosya detayı (indirme için)
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProjectFileDetailDTO {
+    private Long id;
+    private String fileName;
+    private String fileType;
+    private Long fileSize;
+    private String fileData; // Base64
+    private LocalDateTime uploadDate;
+}

@@ -1,5 +1,6 @@
 package com.example.commerce.adminpanel.dto;
 
+import com.example.commerce.adminpanel.entity.ProjectFile;
 import com.example.commerce.adminpanel.enums.ProjectCategory;
 import com.example.commerce.adminpanel.enums.ProjectStatus;
 import lombok.Getter;

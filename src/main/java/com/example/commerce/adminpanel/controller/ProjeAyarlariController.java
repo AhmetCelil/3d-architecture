@@ -5,9 +5,13 @@ import com.example.commerce.adminpanel.service.ProjeAyarlariService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Tag(name = "Şirket Proje Yönetimi", description = "Şirket adminlerinin proje ekleme-güncelleme-silme-listeleme işlemleri")
 @RestController
@@ -19,32 +23,56 @@ public class ProjeAyarlariController {
 
     @Operation(summary = "Şirket admininin yeni proje eklemesini sağlar")
     @PreAuthorize("hasAuthority('SIRKET')")
-    @PostMapping("/proje-ekle")
+    @PostMapping(value = "/proje-ekle", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SirketProjeAyarlaResponseDTO> sirketProjeEkle(
-            @RequestBody SirketProjeAyarlaRequestDTO requestDTO) {
-        return ResponseEntity.ok(projeService.projeEkle(requestDTO));
+            @RequestPart("projectData") SirketProjeAyarlaRequestDTO requestDTO,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+        return ResponseEntity.ok(projeService.projeEkle(requestDTO, files));
     }
-
-    @Operation(summary = "Şirket admininin kendi eklediği projeleri listeler")
+    @Operation(summary = "Şirket admininin kendi eklediği projeleri listeler (dosyalar sadece meta data)")
     @PreAuthorize("hasAuthority('SIRKET')")
     @GetMapping("/projeleri-listele")
     public ResponseEntity<SirketProjelerListeleResponseDTO> sirketProjeleriListele() {
         return ResponseEntity.ok(projeService.projeleriListele());
     }
 
-    @Operation(summary = "Şirket admininin proje günceller")
+    @Operation(summary = "Proje detayını dosyalarla birlikte getirir")
     @PreAuthorize("hasAuthority('SIRKET')")
-    @PostMapping("/proje-guncelle/{projectId}")
+    @GetMapping("/proje-detay-getir/{projeId}")
+    public ResponseEntity<ProjeDetayGetirResponseDTO> projeDetayGetir(@PathVariable Long projeId) {
+        return ResponseEntity.ok(projeService.projeDetayGetir(projeId));
+    }
+
+    @Operation(summary = "Kullanıcının projesine ait dosyayı base64 olarak indirir")
+    @PreAuthorize("hasAuthority('SIRKET')")
+    @GetMapping("/dosya/{dosyaId}")
+    public ResponseEntity<DosyaIndirResponseDTO> dosyaIndir(@PathVariable Long dosyaId) {
+        return ResponseEntity.ok(projeService.dosyaIndir(dosyaId));
+    }
+
+    @Operation(summary = "Şirket admininin proje günceller (dosya ekleme ile)")
+    @PreAuthorize("hasAuthority('SIRKET')")
+    @PutMapping(value = "/proje-guncelle/{projectId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SirketProjeGuncelleResponseDTO> projeGuncelle(
             @PathVariable Long projectId,
-            @RequestBody SirketProjeGuncelleRequestDTO requestDTO) {
-        return ResponseEntity.ok(projeService.projeGuncelle(projectId, requestDTO));
+            @RequestPart("projectData") SirketProjeGuncelleRequestDTO requestDTO,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+        return ResponseEntity.ok(projeService.projeGuncelle(projectId, requestDTO, files));
     }
 
     @Operation(summary = "Şirket admininin proje silmesini sağlar (soft delete)")
     @PreAuthorize("hasAuthority('SIRKET')")
-    @PostMapping("/proje-sil/{projectId}")  // ✅ DELETE kullan, path variable
-    public ResponseEntity<SirketProjeSilResponseDTO> projeSil(@PathVariable Long projectId) {
-        return ResponseEntity.ok(projeService.projeSoftDelete(projectId));
+    @DeleteMapping("/proje-sil/{projeId}")
+    public ResponseEntity<SirketProjeSilResponseDTO> projeSil(@PathVariable Long projeId) {
+        return ResponseEntity.ok(projeService.projeSoftDelete(projeId));
+    }
+
+    @Operation(summary = "Projedeki belirli bir dosyayı siler")
+    @PreAuthorize("hasAuthority('SIRKET')")
+    @DeleteMapping("/proje/{projeId}/dosya/{dosyaId}")
+    public ResponseEntity<DosyaSilResponseDTO> dosyaSil(
+            @PathVariable Long projeId,
+            @PathVariable Long dosyaId) {
+        return ResponseEntity.ok(projeService.dosyaSil(projeId, dosyaId));
     }
 }

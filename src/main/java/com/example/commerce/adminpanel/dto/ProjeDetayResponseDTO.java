@@ -2,19 +2,18 @@ package com.example.commerce.adminpanel.dto;
 
 import com.example.commerce.adminpanel.enums.ProjectCategory;
 import com.example.commerce.adminpanel.enums.ProjectStatus;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+// Proje detay DTO (yeni)
+@Getter
+@Setter
 @Builder
-public class ProjeListDataResponseDTO{
+public class ProjeDetayResponseDTO {
     private Long id;
     private String uniqueCode;
     private String projectName;
@@ -28,5 +27,5 @@ public class ProjeListDataResponseDTO{
     private String description;
     private List<String> technicalSpecifications;
     private List<String> features;
-    private List<ProjectFileMetaDTO> files; // ✅ Sadece meta data
+    private List<ProjectFileDetailDTO> files; // ✅ Full data ile
 }

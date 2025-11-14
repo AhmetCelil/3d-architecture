@@ -7,9 +7,14 @@
 
     <changeSet id="003-create-company-projects" author="ahmetcelil">
 
+        <!-- ✅ Ana tablo: company_projects -->
         <createTable tableName="company_projects">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="unique_code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
             </column>
 
             <column name="project_name" type="VARCHAR(255)">
@@ -46,29 +51,34 @@
             <column name="deleted" type="BOOLEAN" defaultValueBoolean="false">
                 <constraints nullable="false"/>
             </column>
-
         </createTable>
 
-        <!-- Teknik özellikler için ayrı tablo -->
-        <createTable tableName="project_technical_specs">
+        <!-- ✅ Proje dosyaları (ProjectFile) -->
+        <createTable tableName="project_file">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
             <column name="project_id" type="BIGINT">
                 <constraints nullable="false"
-                             foreignKeyName="fk_techspec_project"
+                             foreignKeyName="fk_file_project"
                              referencedTableName="company_projects"
                              referencedColumnNames="id"/>
             </column>
-            <column name="specification" type="VARCHAR(500)"/>
-        </createTable>
 
-        <!-- Özellikler için ayrı tablo -->
-        <createTable tableName="project_features">
-            <column name="project_id" type="BIGINT">
-                <constraints nullable="false"
-                             foreignKeyName="fk_feature_project"
-                             referencedTableName="company_projects"
-                             referencedColumnNames="id"/>
+            <column name="file_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
             </column>
-            <column name="feature" type="VARCHAR(255)"/>
+
+            <column name="file_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="file_size" type="BIGINT"/>
+
+            <column name="upload_date" type="TIMESTAMP"/>
+
+            <column name="file_data" type="BYTEA"/>
         </createTable>
 
     </changeSet>
