@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -35,6 +36,9 @@ public class User {
     @Column(name = "role")
     private Role role;
 
+    @Column(name = "api_key")
+    private String apiKey;
+
     private boolean enabled;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -44,4 +48,11 @@ public class User {
     @Builder.Default
     private List<CompanyProject> projects = new ArrayList<>();
 
+    @PrePersist
+    public void generateApiKey() {
+        if (this.apiKey == null) {
+            this.apiKey = UUID.randomUUID().toString().replace("-", "") +
+                    UUID.randomUUID().toString().replace("-", "");
+        }
+    }
 }

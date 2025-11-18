@@ -7,4 +7,9 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
+
+    // ✅ API key ile user bul
+    Optional<User> findByApiKey(String apiKey);
+
+    boolean existsByEmail(String email);
 }

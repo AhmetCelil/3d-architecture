@@ -16,6 +16,8 @@ public interface CompanyProjectRepository extends JpaRepository<CompanyProject, 
 
     Optional<CompanyProject> findByIdAndUserAndDeletedFalse(Long id, User user);
 
+    Optional<CompanyProject> findByUniqueCodeAndDeletedFalse(String uniqueCode);
+
     boolean existsByUniqueCode(String uniqueCode);
 
 }

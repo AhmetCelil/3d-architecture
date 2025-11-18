@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin-profil/**").permitAll()
                         .requestMatchers("/api/s3/**").permitAll()
                         .requestMatchers("/user/**").permitAll()
+                        .requestMatchers("/public/api/**").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
