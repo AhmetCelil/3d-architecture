@@ -46,7 +46,7 @@ public class IpRateLimitFilter implements Filter {
                 chain.doFilter(request, response);
             } else {
                 ((HttpServletResponse) response).setStatus(429); // Too Many Requests
-                response.getWriter().write("Çok fazla istek. Lütfen daha sonra tekrar deneyiniz.");
+                response.getWriter().write("Çok fazla istek attınız. Lütfen daha sonra tekrar deneyiniz.");
             }
         } else {
             chain.doFilter(request, response);

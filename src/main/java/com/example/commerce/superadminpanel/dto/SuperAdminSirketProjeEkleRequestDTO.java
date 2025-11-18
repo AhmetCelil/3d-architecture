@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class AdminSirketProjeEkleRequestDTO {
+public class SuperAdminSirketProjeEkleRequestDTO {
     private String companyEmail;
 
     private String projectName;

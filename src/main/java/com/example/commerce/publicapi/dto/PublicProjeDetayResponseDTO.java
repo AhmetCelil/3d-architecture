@@ -1,12 +1,11 @@
 package com.example.commerce.publicapi.dto;
 
+import com.example.commerce.basedtos.BaseResponseDto;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class PublicProjeDetayResponseDTO {
+public class PublicProjeDetayResponseDTO extends BaseResponseDto {
     private PublicProjeDetayDTO data;
-    private boolean success;
-    private String error;
 }

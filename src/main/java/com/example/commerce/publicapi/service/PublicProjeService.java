@@ -65,20 +65,12 @@ public class PublicProjeService {
             User user = getUserByApiKey(apiKey);
 
             CompanyProject project = projectRepository.findByIdAndUserAndDeletedFalse(projeId, user)
-                    .orElseThrow(() -> new BusinessServiceException("PROJE_BULUNAMADI",
-                            "Proje bulunamadı"));
-
-            log.info("Public API: Proje detayı - Email={}, Proje ID={}",
-                    user.getEmail(), projeId);
+                    .orElseThrow(() -> new BusinessServiceException("PROJE_BULUNAMADI", "Proje bulunamadı"));
 
             PublicProjeDetayDTO detay = convertToPublicProjeDetayDTO(project);
             responseDTO.setData(detay);
-            responseDTO.setSuccess(true);
-
         } catch (BusinessServiceException ex) {
-            log.error("Public API hatası: {}", ex.getMessage());
-            responseDTO.setSuccess(false);
-            responseDTO.setError(ex.getMessage());
+
         }
 
         return responseDTO;
@@ -113,12 +105,10 @@ public class PublicProjeService {
                     .build();
 
             responseDTO.setData(dosya);
-            responseDTO.setSuccess(true);
 
         } catch (BusinessServiceException ex) {
             log.error("Public API hatası: {}", ex.getMessage());
-            responseDTO.setSuccess(false);
-            responseDTO.setError(ex.getMessage());
+
         }
 
         return responseDTO;
@@ -130,19 +120,14 @@ public class PublicProjeService {
 
         try {
             CompanyProject project = projectRepository.findByUniqueCodeAndDeletedFalse(uniqueCode)
-                    .orElseThrow(() -> new BusinessServiceException("PROJE_BULUNAMADI",
-                            "Proje bulunamadı"));
+                    .orElseThrow(() -> new BusinessServiceException("PROJE_BULUNAMADI", "Proje bulunamadı"));
 
-            log.info("Public API: Proje detayı (unique code) - Kod={}", uniqueCode);
 
             PublicProjeDetayDTO detay = convertToPublicProjeDetayDTO(project);
             responseDTO.setData(detay);
-            responseDTO.setSuccess(true);
 
         } catch (BusinessServiceException ex) {
-            log.error("Public API hatası: {}", ex.getMessage());
-            responseDTO.setSuccess(false);
-            responseDTO.setError(ex.getMessage());
+
         }
 
         return responseDTO;

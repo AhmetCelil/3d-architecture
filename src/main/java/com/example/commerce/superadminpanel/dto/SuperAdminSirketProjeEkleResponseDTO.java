@@ -6,5 +6,5 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AdminSirketProjeEkleResponseDTO extends BaseResponseDto {
+public class SuperAdminSirketProjeEkleResponseDTO extends BaseResponseDto {
 }
