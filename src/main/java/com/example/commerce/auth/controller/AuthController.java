@@ -1,14 +1,12 @@
 package com.example.commerce.auth.controller;
 
-import com.example.commerce.auth.dto.UserLogInRequestDTO;
-import com.example.commerce.auth.dto.UserLogInResponseDTO;
-import com.example.commerce.auth.dto.UserRegisterRequestDTO;
-import com.example.commerce.auth.dto.UserRegisterResponseDTO;
+import com.example.commerce.auth.dto.*;
 import com.example.commerce.auth.service.AuthService;
 import com.example.commerce.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,6 +35,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<UserLogInResponseDTO> login(@RequestBody UserLogInRequestDTO requestDTO) {
         return ResponseEntity.ok(authService.login(requestDTO));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<UserLogOutResponseDTO> logout(@RequestBody UserLogOutRequestDTO requestDTO) {
+        return ResponseEntity.ok(authService.logOut(requestDTO));
     }
 
     @PostMapping("/refresh")

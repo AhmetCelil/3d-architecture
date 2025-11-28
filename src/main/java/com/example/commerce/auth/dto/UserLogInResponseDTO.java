@@ -19,5 +19,4 @@ public class UserLogInResponseDTO extends BaseResponseDto {
     private String refreshToken;
     private String email;
     private Role role;
-    private List<AppMessageDto> messages;
 }

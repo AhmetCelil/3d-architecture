@@ -1,9 +1,6 @@
 package com.example.commerce.auth.service;
 
-import com.example.commerce.auth.dto.UserLogInRequestDTO;
-import com.example.commerce.auth.dto.UserLogInResponseDTO;
-import com.example.commerce.auth.dto.UserRegisterRequestDTO;
-import com.example.commerce.auth.dto.UserRegisterResponseDTO;
+import com.example.commerce.auth.dto.*;
 import com.example.commerce.auth.entity.User;
 import com.example.commerce.auth.repository.UserRepository;
 import com.example.commerce.basedtos.AppMessageType;
@@ -120,6 +117,11 @@ public class AuthServiceImpl implements AuthService {
         } catch (Exception ex) {
             throw new BusinessServiceException(MSG_LOGIN_BEKLENMEYEN_HATA, "Beklenmeyen bir hata oluştu", ex.getMessage());
         }
+    }
+
+    @Override
+    public UserLogOutResponseDTO logOut(UserLogOutRequestDTO requestDTO) {
+        return null;
     }
 }
 

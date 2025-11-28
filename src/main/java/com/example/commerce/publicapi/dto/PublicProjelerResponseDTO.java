@@ -9,6 +9,5 @@ import java.util.List;
 @Setter
 public class PublicProjelerResponseDTO {
     private List<PublicProjeDTO> data;
-    private boolean success;
-    private String error;
+
 }

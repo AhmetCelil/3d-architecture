@@ -38,20 +38,13 @@ public class PublicProjeService {
 
             List<CompanyProject> projects = projectRepository.findByUserAndDeletedFalse(user);
 
-            log.info("Public API: Projeler listelendi - Email={}, Proje Sayısı={}",
-                    user.getEmail(), projects.size());
-
             List<PublicProjeDTO> projeler = projects.stream()
                     .map(this::convertToPublicProjeDTO)
                     .toList();
 
             responseDTO.setData(projeler);
-            responseDTO.setSuccess(true);
 
         } catch (BusinessServiceException ex) {
-            log.error("Public API hatası: {}", ex.getMessage());
-            responseDTO.setSuccess(false);
-            responseDTO.setError(ex.getMessage());
         }
 
         return responseDTO;
@@ -93,8 +86,6 @@ public class PublicProjeService {
                     .orElseThrow(() -> new BusinessServiceException("DOSYA_BULUNAMADI",
                             "Dosya bulunamadı"));
 
-            log.info("Public API: Dosya indiriliyor - Email={}, Dosya={}",
-                    user.getEmail(), file.getFileName());
 
             PublicDosyaDTO dosya = PublicDosyaDTO.builder()
                     .id(file.getId())
@@ -107,7 +98,6 @@ public class PublicProjeService {
             responseDTO.setData(dosya);
 
         } catch (BusinessServiceException ex) {
-            log.error("Public API hatası: {}", ex.getMessage());
 
         }
 
@@ -122,14 +112,11 @@ public class PublicProjeService {
             CompanyProject project = projectRepository.findByUniqueCodeAndDeletedFalse(uniqueCode)
                     .orElseThrow(() -> new BusinessServiceException("PROJE_BULUNAMADI", "Proje bulunamadı"));
 
-
             PublicProjeDetayDTO detay = convertToPublicProjeDetayDTO(project);
             responseDTO.setData(detay);
 
         } catch (BusinessServiceException ex) {
-
         }
-
         return responseDTO;
     }
 
