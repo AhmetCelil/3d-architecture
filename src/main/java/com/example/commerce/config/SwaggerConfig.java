@@ -18,7 +18,7 @@ public class SwaggerConfig {
                         .version("1.0.0")
                         .description("Bu dokümantasyon, construction portfolio projesindeki REST API servislerini içerir.")
                         .contact(new Contact()
-                                .name("Ahmet Celil Yalma")
+                                .name("Ahmet Celil Yalman")
                                 .email("acyalman@gmail.com"))
                         .license(new License().name("Apache 2.0").url("http://springdoc.org"))
                 );

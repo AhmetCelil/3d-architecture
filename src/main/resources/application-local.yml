@@ -69,10 +69,10 @@ logging:
 # ===== AWS S3 CONFIGURATION =====
 aws:
   s3:
-    accessKey: AKIATRW5JOHOXF2ZLZD6
-    secretKey: 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
+    accessKey: AKIA5FCD6HWUM74X544N
+    secretKey: 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
     region: eu-north-1
-    bucketName: projects3d
+    bucketName: 3d-port
 
 # ===== APPLICATION CONFIGURATION =====
 app:
