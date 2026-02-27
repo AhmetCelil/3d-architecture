@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Public API", description = "API key ile read-only erişim - Login gerektirmez")
 @RestController
-@RequestMapping("/public/api")
+@RequestMapping("/api/public")
 @RequiredArgsConstructor
 public class PublicApiController {
 

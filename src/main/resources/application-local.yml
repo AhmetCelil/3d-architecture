@@ -79,3 +79,9 @@ app:
   name: Unity S3 File Server
   version: 1.0.0
   environment: local
+
+mail:
+  brevo:
+    api-key: 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
+    sender: acyalman@gmail.com
+

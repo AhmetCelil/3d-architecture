@@ -14,7 +14,7 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Commerce API Dokümantasyonu")
+                        .title("Portfolio API Dokümantasyonu")
                         .version("1.0.0")
                         .description("Bu dokümantasyon, construction portfolio projesindeki REST API servislerini içerir.")
                         .contact(new Contact()

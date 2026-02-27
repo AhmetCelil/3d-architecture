@@ -5,4 +5,5 @@ import lombok.Data;
 
 @Data
 public class MailResponseDTO extends BaseResponseDto {
+    private boolean success;
 }

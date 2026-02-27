@@ -10,7 +10,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/s3")
-// @CrossOrigin kaldırıldı - global CorsConfig kullanılıyor
 public class S3Controller {
 
     @Autowired

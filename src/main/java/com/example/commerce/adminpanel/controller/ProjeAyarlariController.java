@@ -15,7 +15,7 @@ import java.util.List;
 
 @Tag(name = "Şirket Proje Yönetimi", description = "Şirket adminlerinin proje ekleme-güncelleme-silme-listeleme işlemleri")
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class ProjeAyarlariController {
 
