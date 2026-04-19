@@ -82,6 +82,6 @@ app:
 
 mail:
   brevo:
-    api-key: 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
+    api-key: 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
     sender: acyalman@gmail.com
 

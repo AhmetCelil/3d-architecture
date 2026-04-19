@@ -31,7 +31,6 @@ public class ProjeAyarlariService {
     private static final String MSG_PROJE_GUNCELLEME_BASARILI = "proje.guncelleme.basarili";
     private static final String MSG_PROJE_SILME_BASARILI = "proje.silme.basarili";
     private static final String MSG_PROJE_BULUNAMADI = "proje.bulunamadi";
-    private static final String MSG_YETKISIZ_ERISIM = "yetkisiz.erisim";
     public static final String MSG_DOSYA_BULUNAMADI = "DOSYA_BULUNAMADI";
     public static final String MSG_DOSYA_SILME_BASARILI = "DOSYA_SILME_BASARILI";
 
