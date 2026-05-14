@@ -69,10 +69,10 @@ logging:
 # ===== AWS S3 CONFIGURATION =====
 aws:
   s3:
-    accessKey: AKIA5FCD6HWUM74X544N
-    secretKey: 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
+    accessKey: AKIATRW5JOHOQYVNP4MO
+    secretKey: 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
     region: eu-north-1
-    bucketName: 3d-port
+    bucketName: projects3d
 
 # ===== APPLICATION CONFIGURATION =====
 app:
@@ -82,6 +82,10 @@ app:
 
 mail:
   brevo:
-    api-key: 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
+    api-key: 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
     sender: acyalman@gmail.com
 
+recaptcha:
+  secret-key: 6Legc80sAAAAAFmFhorKkeAjMRx3xaFArhf8RMrg
+  verify-url: https://www.google.com/recaptcha/api/siteverify
+  min-score: 0.5

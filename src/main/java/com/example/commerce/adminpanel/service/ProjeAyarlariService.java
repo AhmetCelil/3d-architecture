@@ -3,7 +3,9 @@ package com.example.commerce.adminpanel.service;
 import com.example.commerce.adminpanel.dto.*;
 import com.example.commerce.adminpanel.entity.CompanyProject;
 import com.example.commerce.adminpanel.entity.ProjectFile;
+import com.example.commerce.adminpanel.enums.FileCategory;
 import com.example.commerce.adminpanel.repository.CompanyProjectRepository;
+import com.example.commerce.adminpanel.repository.ProjectFileRepository;
 import com.example.commerce.auth.entity.User;
 import com.example.commerce.auth.service.AuthenticationService;
 import com.example.commerce.basedtos.AppMessageType;
@@ -35,10 +37,32 @@ public class ProjeAyarlariService {
     public static final String MSG_DOSYA_SILME_BASARILI = "DOSYA_SILME_BASARILI";
 
     private final CompanyProjectRepository projectRepository;
+    private final ProjectFileRepository fileRepository;
     private final AuthenticationService authenticationService;
 
+    // ✅ Dosya kaydetme helper - kategori destekli
+    private void dosyalariEkle(CompanyProject project, List<MultipartFile> files, FileCategory category) throws IOException {
+        if (files == null || files.isEmpty()) return;
+        for (MultipartFile file : files) {
+            ProjectFile projectFile = ProjectFile.builder()
+                    .fileName(file.getOriginalFilename())
+                    .fileType(file.getContentType())
+                    .fileSize(file.getSize())
+                    .fileData(file.getBytes())
+                    .fileCategory(category)
+                    .uploadDate(LocalDateTime.now())
+                    .project(project)
+                    .build();
+            project.getFiles().add(projectFile);
+        }
+    }
+
     @Transactional
-    public SirketProjeAyarlaResponseDTO projeEkle(SirketProjeAyarlaRequestDTO requestDTO, List<MultipartFile> files) {
+    public SirketProjeAyarlaResponseDTO projeEkle(
+            SirketProjeAyarlaRequestDTO requestDTO,
+            List<MultipartFile> images,
+            List<MultipartFile> floorPlans) {
+
         SirketProjeAyarlaResponseDTO responseDTO = new SirketProjeAyarlaResponseDTO();
 
         try {
@@ -64,22 +88,8 @@ public class ProjeAyarlariService {
                     .user(user)
                     .build();
 
-            if (files != null && !files.isEmpty()) {
-                for (MultipartFile file : files) {
-
-                    ProjectFile projectFile = ProjectFile.builder()
-                            .fileName(file.getOriginalFilename())
-                            .fileType(file.getContentType())
-                            .fileSize(file.getSize())
-                            .fileData(file.getBytes())
-                            .uploadDate(LocalDateTime.now())
-                            .project(project) // ← burada ilişkiyi kur
-                            .build();
-
-                    project.getFiles().add(projectFile); // listeye ekle
-                }
-            }
-
+            dosyalariEkle(project, images, FileCategory.IMAGE);
+            dosyalariEkle(project, floorPlans, FileCategory.FLOOR_PLAN);
 
             CompanyProject savedProject = projectRepository.save(project);
             log.info("Proje kaydedildi: ID={}, Ad={}, Dosya Sayısı={}",
@@ -142,7 +152,7 @@ public class ProjeAyarlariService {
         return responseDTO;
     }
 
-    // ✅ YENİ - Proje detayı getir (full data)
+    // ✅ Proje detayı getir (full data)
     @Transactional(readOnly = true)
     public ProjeDetayGetirResponseDTO projeDetayGetir(Long projeId) {
         ProjeDetayGetirResponseDTO responseDTO = new ProjeDetayGetirResponseDTO();
@@ -151,7 +161,7 @@ public class ProjeAyarlariService {
             User user = authenticationService.getAuthenticatedUser();
 
             CompanyProject project = projectRepository.findByIdAndUserAndDeletedFalse(projeId, user)
-                    .orElseThrow(() -> new BusinessServiceException("","Proje bulunamadı veya erişim yetkiniz yok"));
+                    .orElseThrow(() -> new BusinessServiceException("", "Proje bulunamadı veya erişim yetkiniz yok"));
 
             log.info("Proje detayı getiriliyor: ID={}", projeId);
 
@@ -186,7 +196,7 @@ public class ProjeAyarlariService {
         return responseDTO;
     }
 
-    // ✅ Service - User'ın dosyasını bul
+    // ✅ Dosya indir (base64)
     @Transactional(readOnly = true)
     public DosyaIndirResponseDTO dosyaIndir(Long dosyaId) {
         DosyaIndirResponseDTO responseDTO = new DosyaIndirResponseDTO();
@@ -194,9 +204,8 @@ public class ProjeAyarlariService {
         try {
             User user = authenticationService.getAuthenticatedUser();
 
-            // User'ın projelerinden dosyayı bul
             ProjectFile file = user.getProjects().stream()
-                    .filter(project -> !project.isDeleted()) // Silinmemiş projeler
+                    .filter(project -> !project.isDeleted())
                     .flatMap(project -> project.getFiles().stream())
                     .filter(f -> f.getId().equals(dosyaId))
                     .findFirst()
@@ -205,8 +214,7 @@ public class ProjeAyarlariService {
             log.info("Dosya indiriliyor: User={}, Dosya ID={}, Ad={}",
                     user.getEmail(), dosyaId, file.getFileName());
 
-            ProjectFileDetailDTO detay = convertToFileDetailDTO(file);
-            responseDTO.setData(detay);
+            responseDTO.setData(convertToFileDetailDTO(file));
 
         } catch (BusinessServiceException ex) {
             log.error("Dosya indirme hatası: {}", ex.getMessage());
@@ -216,51 +224,6 @@ public class ProjeAyarlariService {
         }
 
         return responseDTO;
-    }
-
-    // ✅ Helper - Liste için (meta data only)
-    private ProjeListDataResponseDTO convertToProjeListDTO(CompanyProject project) {
-        return ProjeListDataResponseDTO.builder()
-                .id(project.getId())
-                .uniqueCode(project.getUniqueCode())
-                .projectName(project.getProjectName())
-                .category(project.getCategory())
-                .location(project.getLocation())
-                .totalArea(project.getTotalArea())
-                .startDate(project.getStartDate())
-                .endDate(project.getEndDate())
-                .status(project.getStatus())
-                .durationMonths(project.getDurationMonths())
-                .description(project.getDescription())
-                .technicalSpecifications(project.getTechnicalSpecifications())
-                .features(project.getFeatures())
-                .files(project.getFiles().stream()
-                        .map(this::convertToFileMetaDTO) // ✅ Sadece meta
-                        .toList())
-                .build();
-    }
-
-    // ✅ Helper - Meta data (byte[] yok)
-    private ProjectFileMetaDTO convertToFileMetaDTO(ProjectFile file) {
-        return ProjectFileMetaDTO.builder()
-                .id(file.getId())
-                .fileName(file.getFileName())
-                .fileType(file.getFileType())
-                .fileSize(file.getFileSize())
-                .uploadDate(file.getUploadDate())
-                .build();
-    }
-
-    // ✅ Helper - Full data (byte[] -> base64)
-    private ProjectFileDetailDTO convertToFileDetailDTO(ProjectFile file) {
-        return ProjectFileDetailDTO.builder()
-                .id(file.getId())
-                .fileName(file.getFileName())
-                .fileType(file.getFileType())
-                .fileSize(file.getFileSize())
-                .fileData(Base64.getEncoder().encodeToString(file.getFileData())) // ✅ byte[] -> base64
-                .uploadDate(file.getUploadDate())
-                .build();
     }
 
     // ✅ Proje soft delete
@@ -273,12 +236,10 @@ public class ProjeAyarlariService {
 
             User user = authenticationService.getAuthenticatedUser();
 
-            // User'a ait ve silinmemiş projeyi bul
             CompanyProject project = projectRepository.findByIdAndUserAndDeletedFalse(projeId, user)
                     .orElseThrow(() -> new BusinessServiceException(MSG_PROJE_BULUNAMADI,
                             "Proje bulunamadı veya erişim yetkiniz yok"));
 
-            // Soft delete
             project.setDeleted(true);
             projectRepository.save(project);
 
@@ -298,7 +259,7 @@ public class ProjeAyarlariService {
         return responseDTO;
     }
 
-    // ✅ Dosya sil (hard delete - fiziksel silme)
+    // ✅ Dosya sil (hard delete)
     @Transactional
     public DosyaSilResponseDTO dosyaSil(Long projeId, Long dosyaId) {
         DosyaSilResponseDTO responseDTO = new DosyaSilResponseDTO();
@@ -308,20 +269,18 @@ public class ProjeAyarlariService {
 
             User user = authenticationService.getAuthenticatedUser();
 
-            // User'a ait projeyi bul
             CompanyProject project = projectRepository.findByIdAndUserAndDeletedFalse(projeId, user)
                     .orElseThrow(() -> new BusinessServiceException(MSG_PROJE_BULUNAMADI,
                             "Proje bulunamadı veya erişim yetkiniz yok"));
 
-            // Dosyayı bul
             ProjectFile fileToRemove = project.getFiles().stream()
                     .filter(f -> f.getId().equals(dosyaId))
                     .findFirst()
                     .orElseThrow(() -> new BusinessServiceException(MSG_DOSYA_BULUNAMADI,
                             "Dosya bulunamadı"));
 
-            // Dosyayı projeden çıkar (orphanRemoval = true sayesinde DB'den silinir)
             project.getFiles().remove(fileToRemove);
+            fileRepository.delete(fileToRemove);
             projectRepository.save(project);
 
             log.info("Dosya silindi: Proje ID={}, Dosya ID={}, Dosya Adı={}, Kullanıcı={}",
@@ -341,9 +300,14 @@ public class ProjeAyarlariService {
         return responseDTO;
     }
 
-    // ✅ PROJE GÜNCELLEME (Dosya ekleme ile)
+    // ✅ Proje güncelleme (resim + kat planı ayrı)
     @Transactional
-    public SirketProjeGuncelleResponseDTO projeGuncelle(Long projectId, SirketProjeGuncelleRequestDTO requestDTO, List<MultipartFile> files) {
+    public SirketProjeGuncelleResponseDTO projeGuncelle(
+            Long projectId,
+            SirketProjeGuncelleRequestDTO requestDTO,
+            List<MultipartFile> newImages,
+            List<MultipartFile> newFloorPlans) {
+
         SirketProjeGuncelleResponseDTO responseDTO = new SirketProjeGuncelleResponseDTO();
 
         try {
@@ -351,31 +315,14 @@ public class ProjeAyarlariService {
 
             User user = authenticationService.getAuthenticatedUser();
 
-            // Kullanıcının projesi mi kontrol et
             CompanyProject project = projectRepository.findByIdAndUserAndDeletedFalse(projectId, user)
                     .orElseThrow(() -> new BusinessServiceException(MSG_PROJE_BULUNAMADI,
                             "Proje bulunamadı veya erişim yetkiniz yok"));
 
-            // Proje alanlarını güncelle
             updateProjectFields(project, requestDTO);
 
-            // Yeni dosyalar varsa ekle
-            if (files != null && !files.isEmpty()) {
-                for (MultipartFile file : files) {
-
-                    ProjectFile projectFile = ProjectFile.builder()
-                            .fileName(file.getOriginalFilename())
-                            .fileType(file.getContentType())
-                            .fileSize(file.getSize())
-                            .fileData(file.getBytes()) // byte[] olarak kaydet
-                            .uploadDate(LocalDateTime.now())
-                            .project(project)
-                            .build();
-
-                    project.getFiles().add(projectFile);
-                }
-                log.info("Projeye {} yeni dosya eklendi", files.size());
-            }
+            dosyalariEkle(project, newImages, FileCategory.IMAGE);
+            dosyalariEkle(project, newFloorPlans, FileCategory.FLOOR_PLAN);
 
             CompanyProject updatedProject = projectRepository.save(project);
             log.info("Proje güncellendi: ID={}, Ad={}, Toplam Dosya={}",
@@ -405,7 +352,54 @@ public class ProjeAyarlariService {
         return responseDTO;
     }
 
+    // ✅ Helper - Liste için (meta data only)
+    private ProjeListDataResponseDTO convertToProjeListDTO(CompanyProject project) {
+        return ProjeListDataResponseDTO.builder()
+                .id(project.getId())
+                .uniqueCode(project.getUniqueCode())
+                .projectName(project.getProjectName())
+                .category(project.getCategory())
+                .location(project.getLocation())
+                .totalArea(project.getTotalArea())
+                .startDate(project.getStartDate())
+                .endDate(project.getEndDate())
+                .status(project.getStatus())
+                .durationMonths(project.getDurationMonths())
+                .description(project.getDescription())
+                .technicalSpecifications(project.getTechnicalSpecifications())
+                .features(project.getFeatures())
+                .files(project.getFiles().stream()
+                        .map(this::convertToFileMetaDTO)
+                        .toList())
+                .build();
+    }
 
+    // ✅ Helper - Meta data (byte[] yok)
+    private ProjectFileMetaDTO convertToFileMetaDTO(ProjectFile file) {
+        return ProjectFileMetaDTO.builder()
+                .id(file.getId())
+                .fileName(file.getFileName())
+                .fileType(file.getFileType())
+                .fileSize(file.getFileSize())
+                .fileCategory(file.getFileCategory())  // ✅ YENİ
+                .uploadDate(file.getUploadDate())
+                .build();
+    }
+
+    // ✅ Helper - Full data (byte[] -> base64)
+    private ProjectFileDetailDTO convertToFileDetailDTO(ProjectFile file) {
+        return ProjectFileDetailDTO.builder()
+                .id(file.getId())
+                .fileName(file.getFileName())
+                .fileType(file.getFileType())
+                .fileSize(file.getFileSize())
+                .fileCategory(file.getFileCategory())  // ✅ YENİ
+                .fileData(Base64.getEncoder().encodeToString(file.getFileData()))
+                .uploadDate(file.getUploadDate())
+                .build();
+    }
+
+    // ✅ Proje alanlarını güncelle
     private void updateProjectFields(CompanyProject project, SirketProjeGuncelleRequestDTO requestDTO) {
         if (requestDTO.getProjectName() != null && !requestDTO.getProjectName().isBlank()) {
             project.setProjectName(requestDTO.getProjectName());

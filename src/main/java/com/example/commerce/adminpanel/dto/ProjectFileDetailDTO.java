@@ -1,5 +1,6 @@
 package com.example.commerce.adminpanel.dto;
 
+import com.example.commerce.adminpanel.enums.FileCategory;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,4 +18,6 @@ public class ProjectFileDetailDTO {
     private Long fileSize;
     private String fileData; // Base64
     private LocalDateTime uploadDate;
+    private FileCategory fileCategory;
+
 }

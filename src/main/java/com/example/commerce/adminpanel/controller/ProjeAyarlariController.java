@@ -26,9 +26,11 @@ public class ProjeAyarlariController {
     @PostMapping(value = "/proje-ekle", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SirketProjeAyarlaResponseDTO> sirketProjeEkle(
             @RequestPart("projectData") SirketProjeAyarlaRequestDTO requestDTO,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
-        return ResponseEntity.ok(projeService.projeEkle(requestDTO, files));
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            @RequestPart(value = "floorPlans", required = false) List<MultipartFile> floorPlans) {
+        return ResponseEntity.ok(projeService.projeEkle(requestDTO, images, floorPlans));
     }
+
     @Operation(summary = "Şirket admininin kendi eklediği projeleri listeler (dosyalar sadece meta data)")
     @PreAuthorize("hasAuthority('SIRKET')")
     @GetMapping("/projeleri-listele")
@@ -50,14 +52,15 @@ public class ProjeAyarlariController {
         return ResponseEntity.ok(projeService.dosyaIndir(dosyaId));
     }
 
-    @Operation(summary = "Şirket admininin proje günceller (dosya ekleme ile)")
+    @Operation(summary = "Şirket admininin proje günceller (resim ve kat planı ekleme ile)")
     @PreAuthorize("hasAuthority('SIRKET')")
     @PutMapping(value = "/proje-guncelle/{projectId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SirketProjeGuncelleResponseDTO> projeGuncelle(
             @PathVariable Long projectId,
             @RequestPart("projectData") SirketProjeGuncelleRequestDTO requestDTO,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
-        return ResponseEntity.ok(projeService.projeGuncelle(projectId, requestDTO, files));
+            @RequestPart(value = "newImages", required = false) List<MultipartFile> newImages,
+            @RequestPart(value = "newFloorPlans", required = false) List<MultipartFile> newFloorPlans) {
+        return ResponseEntity.ok(projeService.projeGuncelle(projectId, requestDTO, newImages, newFloorPlans));
     }
 
     @Operation(summary = "Şirket admininin proje silmesini sağlar (soft delete)")

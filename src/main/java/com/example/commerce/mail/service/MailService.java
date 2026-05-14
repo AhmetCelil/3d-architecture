@@ -7,13 +7,16 @@ import com.example.commerce.exception.BusinessServiceException;
 import com.example.commerce.mail.dto.MailRequestDTO;
 import com.example.commerce.mail.dto.MailResponseDTO;
 import com.example.commerce.util.AppMessageUtil;
+import com.example.commerce.altcha.AltchaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.*;
@@ -27,6 +30,7 @@ import java.util.Map;
 public class MailService {
 
     private final UserRepository userRepository;
+    private final AltchaService altchaService;
 
     @Value("${mail.brevo.api-key}")
     private String brevoApiKey;
@@ -41,83 +45,61 @@ public class MailService {
         disableSSLVerification();
     }
 
-    private User getUserByApiKey(String apiKey) {
-        return userRepository.findByApiKey(apiKey)
-                .orElseThrow(() -> new BusinessServiceException("INVALID_API_KEY", "Geçersiz API Key"));
-    }
-
     public MailResponseDTO mailGonder(String apiKey, MailRequestDTO dto) {
+        // 1. CAPTCHA DOĞRULAMA (PoW Check)
+        if (!verifyCaptcha(dto.getCaptchaToken())) {
+            throw new BusinessServiceException("INVALID_CAPTCHA", "Güvenlik doğrulaması geçilemedi.");
+        }
+
         MailResponseDTO responseDTO = new MailResponseDTO();
         User user = getUserByApiKey(apiKey);
 
         try {
-            // RestTemplate ve Timeout ayarları
-            SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-            factory.setConnectTimeout(10000);
-            factory.setReadTimeout(10000);
-            RestTemplate restTemplate = new RestTemplate(factory);
+            RestTemplate restTemplate = new RestTemplate(getFactory());
 
-            // Headers - Brevo v3 standartlarına uygun
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
-            headers.set("api-key", brevoApiKey.trim()); // x-sib-api-key yerine api-key kullanılır
+            headers.set("api-key", brevoApiKey.trim());
 
-            // Request Body
             Map<String, Object> requestBody = Map.of(
-                    "sender", Map.of(
-                            "name", "İnşaat Portfolyo Bildirimi",
-                            "email", senderMail.trim()
-                    ),
-                    "to", List.of(Map.of(
-                            "email", user.getEmail(),
-                            "name", user.getEmail()
-                    )),
+                    "sender", Map.of("name", "İnşaat Portfolyo Bildirimi", "email", senderMail.trim()),
+                    "to", List.of(Map.of("email", user.getEmail(), "name", user.getEmail())),
                     "subject", "Yeni Proje İletişim Talebi",
-                    "htmlContent", String.format("""
-                    <html>
-                      <body>
-                        <h2 style='color: #2c3e50;'>Yeni İletişim Talebi</h2>
-                        <p><b>Gönderen:</b> %s %s</p>
-                        <p><b>Telefon:</b> %s</p>
-                        <p><b>E-posta:</b> %s</p>
-                        <br>
-                        <p><b>Mesaj İçeriği:</b></p>
-                        <div style='padding: 10px; background: #f9f9f9; border-left: 4px solid #3498db;'>
-                          %s
-                        </div>
-                      </body>
-                    </html>
-                    """,
-                            dto.getIsim(), dto.getSoyisim(), dto.getTelefon(),
-                            dto.getEmail(), dto.getAciklama())
+                    "htmlContent", buildHtml(dto)
             );
 
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
-
-            log.info("Brevo API'ye mail isteği gönderiliyor... Hedef: {}", user.getEmail());
-
             ResponseEntity<String> response = restTemplate.postForEntity(BREVO_URL, request, String.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                log.info("Mail başarıyla gönderildi. Brevo Response: {}", response.getBody());
                 responseDTO.setSuccess(true);
-                responseDTO.setMessages(List.of(
-                        AppMessageUtil.createWithCode("Mesajınız başarıyla iletildi.", AppMessageType.SUCCESS)
-                ));
+                responseDTO.setMessages(List.of(AppMessageUtil.createWithCode("Başarılı", AppMessageType.SUCCESS)));
             }
-
-        } catch (HttpClientErrorException.Unauthorized e) {
-            log.error("BREVO 401 UNAUTHORIZED: API Key geçersiz veya süresi dolmuş! Body: {}", e.getResponseBodyAsString());
-            responseDTO.setSuccess(false);
-            responseDTO.setMessages(List.of(AppMessageUtil.createWithCode("Sistem yetkilendirme hatası (401).", AppMessageType.ERROR)));
         } catch (Exception e) {
-            log.error("Mail gönderilirken teknik bir hata oluştu: ", e);
+            log.error("Mail hatası: ", e);
             responseDTO.setSuccess(false);
-            responseDTO.setMessages(List.of(AppMessageUtil.createWithCode("Mail gönderimi başarısız oldu.", AppMessageType.ERROR)));
         }
-
         return responseDTO;
+    }
+
+    private boolean verifyCaptcha(String payload) {
+        return altchaService.verify(payload);
+    }
+    private String buildHtml(MailRequestDTO dto) {
+        return String.format("<html><body><h2>Yeni Talep</h2><p>%s %s</p><p>%s</p></body></html>",
+                dto.getIsim(), dto.getSoyisim(), dto.getAciklama());
+    }
+
+    private SimpleClientHttpRequestFactory getFactory() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(10000);
+        factory.setReadTimeout(10000);
+        return factory;
+    }
+
+    private User getUserByApiKey(String apiKey) {
+        return userRepository.findByApiKey(apiKey)
+                .orElseThrow(() -> new BusinessServiceException("INVALID_API_KEY", "Geçersiz API Key"));
     }
 
     /**

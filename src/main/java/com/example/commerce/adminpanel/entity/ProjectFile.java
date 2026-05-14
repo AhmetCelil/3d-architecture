@@ -1,5 +1,6 @@
 package com.example.commerce.adminpanel.entity;
 
+import com.example.commerce.adminpanel.enums.FileCategory;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,4 +35,8 @@ public class ProjectFile {
 
     @Column(name = "upload_date")
     private LocalDateTime uploadDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "file_category")
+    private FileCategory fileCategory;
 }

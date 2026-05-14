@@ -70,7 +70,7 @@ public class JwtFilter extends OncePerRequestFilter {
     // Role göre rate limiti kontrol et
     private boolean checkRateLimit(String username, String role) {
         int maxRequestsPerMinute = switch (role.toUpperCase()) {
-            case "ADMIN" -> 10;
+            case "ADMIN" -> 100;
             case "SIRKET" -> 10;
             case "MUSTERI" -> 4;
             default -> 1; // varsayılan

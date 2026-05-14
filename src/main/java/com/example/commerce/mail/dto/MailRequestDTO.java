@@ -9,4 +9,5 @@ public class MailRequestDTO {
     private String telefon;
     private String email;
     private String aciklama;
+    private String captchaToken;
 }
