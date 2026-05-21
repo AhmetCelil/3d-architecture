@@ -1,5 +1,7 @@
-package com.example.commerce.altcha;
+package com.example.commerce.altcha.controller;
 
+import com.example.commerce.altcha.dto.AltchaChallengeDTO;
+import com.example.commerce.altcha.service.AltchaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

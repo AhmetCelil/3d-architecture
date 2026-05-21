@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/api/admin/profile")
+@RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class AdminProfilAyarlarıController {
 
     private final AdminProfileService profileService;
 
-    @GetMapping("/me")
+    @GetMapping("/user-info")
     public ResponseEntity<UserInfoResponseDTO> getCurrentUserInfo(Principal principal) {
         String email = principal.getName();
         UserInfoResponseDTO userInfo = profileService.getAdminUserInfo(email);

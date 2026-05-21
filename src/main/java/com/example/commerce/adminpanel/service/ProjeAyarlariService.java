@@ -133,7 +133,6 @@ public class ProjeAyarlariService {
         return responseDTO;
     }
 
-    // ✅ Listeleme (sadece meta data)
     @Transactional(readOnly = true)
     public SirketProjelerListeleResponseDTO projeleriListele() {
         SirketProjelerListeleResponseDTO responseDTO = new SirketProjelerListeleResponseDTO();
@@ -166,7 +165,6 @@ public class ProjeAyarlariService {
         return responseDTO;
     }
 
-    // ✅ Proje detayı getir (full data)
     @Transactional(readOnly = true)
     public ProjeDetayGetirResponseDTO projeDetayGetir(Long projeId) {
         ProjeDetayGetirResponseDTO responseDTO = new ProjeDetayGetirResponseDTO();
@@ -210,7 +208,6 @@ public class ProjeAyarlariService {
         return responseDTO;
     }
 
-    // ✅ Dosya indir (base64)
     @Transactional(readOnly = true)
     public DosyaIndirResponseDTO dosyaIndir(Long dosyaId) {
         DosyaIndirResponseDTO responseDTO = new DosyaIndirResponseDTO();
@@ -273,7 +270,6 @@ public class ProjeAyarlariService {
         return responseDTO;
     }
 
-    // ✅ Dosya sil (hard delete)
     @Transactional
     public DosyaSilResponseDTO dosyaSil(Long projeId, Long dosyaId) {
         DosyaSilResponseDTO responseDTO = new DosyaSilResponseDTO();
@@ -314,7 +310,6 @@ public class ProjeAyarlariService {
         return responseDTO;
     }
 
-    // ✅ Proje güncelleme (resim + kat planı ayrı)
     @Transactional
     public SirketProjeGuncelleResponseDTO projeGuncelle(
             Long projectId,
@@ -336,7 +331,6 @@ public class ProjeAyarlariService {
 
             updateProjectFields(project, requestDTO);
 
-            // ✅ Resimler için detay null, kat planları için detaylar gönderiliyor
             dosyalariEkle(project, newImages, null, FileCategory.IMAGE);
             dosyalariEkle(project, newFloorPlans, newFloorPlanDetails, FileCategory.FLOOR_PLAN);
 
@@ -368,7 +362,6 @@ public class ProjeAyarlariService {
         return responseDTO;
     }
 
-    // ✅ Helper - Liste için (meta data only)
     private ProjeListDataResponseDTO convertToProjeListDTO(CompanyProject project) {
         return ProjeListDataResponseDTO.builder()
                 .id(project.getId())
@@ -390,7 +383,6 @@ public class ProjeAyarlariService {
                 .build();
     }
 
-    // ✅ Helper - Meta data (byte[] yok)
     private ProjectFileMetaDTO convertToFileMetaDTO(ProjectFile file) {
         return ProjectFileMetaDTO.builder()
                 .id(file.getId())
@@ -403,7 +395,6 @@ public class ProjeAyarlariService {
                 .build();
     }
 
-    // ✅ Helper - Full data (byte[] -> base64)
     private ProjectFileDetailDTO convertToFileDetailDTO(ProjectFile file) {
         return ProjectFileDetailDTO.builder()
                 .id(file.getId())
@@ -417,7 +408,6 @@ public class ProjeAyarlariService {
                 .build();
     }
 
-    // ✅ Proje alanlarını güncelle
     private void updateProjectFields(CompanyProject project, SirketProjeGuncelleRequestDTO requestDTO) {
         if (requestDTO.getProjectName() != null && !requestDTO.getProjectName().isBlank()) {
             project.setProjectName(requestDTO.getProjectName());

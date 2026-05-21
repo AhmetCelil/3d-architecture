@@ -1,4 +1,4 @@
-package com.example.commerce.altcha;
+package com.example.commerce.altcha.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

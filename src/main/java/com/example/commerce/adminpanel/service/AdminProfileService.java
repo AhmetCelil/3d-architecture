@@ -24,11 +24,9 @@ public class AdminProfileService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessServiceException("user.not.found", "Kullanıcı bulunamadı: " + email));
 
-        // 2. UserProfile'a eriş (Lazy Loading olduğu için bu metot @Transactional olmalı)
         UserProfile profile = user.getUserProfile();
 
-        // 3. Response DTO'yu inşa et
-        // Profile null ise hata almamak için güvenli (safe-navigation) şekilde eşleme yapıyoruz
+
         return UserInfoResponseDTO.builder()
                 .email(user.getEmail())
                 .role(user.getRole().name())

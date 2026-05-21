@@ -25,7 +25,7 @@ public class IpRateLimitFilter extends OncePerRequestFilter implements Filter {
 
     private Bucket resolveBucket(String ip) {
         return cache.get(ip, k -> {
-            Refill refill = Refill.intervally(1000, Duration.ofMinutes(1)); // 16 istek/dakika
+            Refill refill = Refill.intervally(1000, Duration.ofMinutes(1));
             Bandwidth limit = Bandwidth.classic(180  , refill);
             return Bucket.builder().addLimit(limit).build();
         });
@@ -55,8 +55,6 @@ public class IpRateLimitFilter extends OncePerRequestFilter implements Filter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        // SADECE bu yollar için filtre ÇALIŞSIN istiyoruz.
-        // Yani bu yollar DIŞINDAKİ her şey için "true" dönmeliyiz ki filtreyi atlasın.
         boolean isRateLimitedPath = path.contains("/login")
                 || path.contains("/register")
                 || path.contains("/s3");
