@@ -27,9 +27,8 @@ public class ProjeAyarlariController {
     public ResponseEntity<SirketProjeAyarlaResponseDTO> sirketProjeEkle(
             @RequestPart("projectData") SirketProjeAyarlaRequestDTO requestDTO,
             @RequestPart(value = "images", required = false) List<MultipartFile> images,
-            @RequestPart(value = "floorPlans", required = false) List<MultipartFile> floorPlans,
-            @RequestPart(value = "floorPlanDetails", required = false) List<String> floorPlanDetails) {
-        return ResponseEntity.ok(projeService.projeEkle(requestDTO, images, floorPlans, floorPlanDetails));
+            @RequestPart(value = "floorPlans", required = false) List<MultipartFile> floorPlans) {
+        return ResponseEntity.ok(projeService.projeEkle(requestDTO, images, floorPlans));
     }
 
     @Operation(summary = "Şirket admininin kendi eklediği projeleri listeler (dosyalar sadece meta data)")
@@ -60,9 +59,8 @@ public class ProjeAyarlariController {
             @PathVariable Long projectId,
             @RequestPart("projectData") SirketProjeGuncelleRequestDTO requestDTO,
             @RequestPart(value = "newImages", required = false) List<MultipartFile> newImages,
-            @RequestPart(value = "newFloorPlans", required = false) List<MultipartFile> newFloorPlans,
-            @RequestPart(value = "newFloorPlanDetails", required = false) List<String> newFloorPlanDetails) {
-        return ResponseEntity.ok(projeService.projeGuncelle(projectId, requestDTO, newImages, newFloorPlans, newFloorPlanDetails));
+            @RequestPart(value = "newFloorPlans", required = false) List<MultipartFile> newFloorPlans) {
+        return ResponseEntity.ok(projeService.projeGuncelle(projectId, requestDTO, newImages, newFloorPlans));
     }
 
     @Operation(summary = "Şirket admininin proje silmesini sağlar (soft delete)")

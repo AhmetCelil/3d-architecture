@@ -1,4 +1,4 @@
-package com.example.commerce.altcha.service;
+package com.example.commerce.altcha;
 
 import com.example.commerce.altcha.dto.AltchaChallengeDTO;
 import lombok.extern.slf4j.Slf4j;

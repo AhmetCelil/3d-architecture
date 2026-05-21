@@ -74,8 +74,7 @@ public class ProjeAyarlariService {
     public SirketProjeAyarlaResponseDTO projeEkle(
             SirketProjeAyarlaRequestDTO requestDTO,
             List<MultipartFile> images,
-            List<MultipartFile> floorPlans,
-            List<String> floorPlanDetails) {
+            List<MultipartFile> floorPlans) {
 
         SirketProjeAyarlaResponseDTO responseDTO = new SirketProjeAyarlaResponseDTO();
 
@@ -103,7 +102,7 @@ public class ProjeAyarlariService {
                     .build();
 
             dosyalariEkle(project, images, null, FileCategory.IMAGE);
-            dosyalariEkle(project, floorPlans, floorPlanDetails, FileCategory.FLOOR_PLAN);
+            dosyalariEkle(project, floorPlans, null, FileCategory.FLOOR_PLAN);
 
             CompanyProject savedProject = projectRepository.save(project);
             log.info("Proje kaydedildi: ID={}, Ad={}, Dosya Sayısı={}",
@@ -315,8 +314,7 @@ public class ProjeAyarlariService {
             Long projectId,
             SirketProjeGuncelleRequestDTO requestDTO,
             List<MultipartFile> newImages,
-            List<MultipartFile> newFloorPlans,
-            List<String> newFloorPlanDetails) { // ✅ Detaylar eklendi
+            List<MultipartFile> newFloorPlans) {
 
         SirketProjeGuncelleResponseDTO responseDTO = new SirketProjeGuncelleResponseDTO();
 
@@ -332,7 +330,7 @@ public class ProjeAyarlariService {
             updateProjectFields(project, requestDTO);
 
             dosyalariEkle(project, newImages, null, FileCategory.IMAGE);
-            dosyalariEkle(project, newFloorPlans, newFloorPlanDetails, FileCategory.FLOOR_PLAN);
+            dosyalariEkle(project, newFloorPlans, null, FileCategory.IMAGE);
 
             CompanyProject updatedProject = projectRepository.save(project);
             log.info("Proje güncellendi: ID={}, Ad={}, Toplam Dosya={}",

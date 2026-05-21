@@ -7,7 +7,7 @@ import com.example.commerce.exception.BusinessServiceException;
 import com.example.commerce.mail.dto.MailRequestDTO;
 import com.example.commerce.mail.dto.MailResponseDTO;
 import com.example.commerce.util.AppMessageUtil;
-import com.example.commerce.altcha.service.AltchaService;
+import com.example.commerce.altcha.AltchaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
