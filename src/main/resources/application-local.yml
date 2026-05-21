@@ -7,6 +7,10 @@ spring:
       mapper:
         accept-case-insensitive-enums: true
 
+  # Doğru hiyerarşi budur:
+  liquibase:
+    enabled: false
+
 
   # ===== DATABASE CONFIGURATION =====
   datasource:

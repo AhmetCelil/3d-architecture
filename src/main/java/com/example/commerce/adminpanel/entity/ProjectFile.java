@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -39,4 +41,10 @@ public class ProjectFile {
     @Enumerated(EnumType.STRING)
     @Column(name = "file_category")
     private FileCategory fileCategory;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "project_file_details", joinColumns = @JoinColumn(name = "project_id"))
+    @Column(name = "project_file_details", length = 10000)
+    @Builder.Default
+    private List<String> projectFileDetails = new ArrayList<>();
 }

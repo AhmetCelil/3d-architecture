@@ -40,10 +40,21 @@ public class ProjeAyarlariService {
     private final ProjectFileRepository fileRepository;
     private final AuthenticationService authenticationService;
 
-    // ✅ Dosya kaydetme helper - kategori destekli
-    private void dosyalariEkle(CompanyProject project, List<MultipartFile> files, FileCategory category) throws IOException {
+    private void dosyalariEkle(CompanyProject project, List<MultipartFile> files, List<String> details, FileCategory category) throws IOException {
         if (files == null || files.isEmpty()) return;
-        for (MultipartFile file : files) {
+
+        for (int i = 0; i < files.size(); i++) {
+            MultipartFile file = files.get(i);
+            List<String> fileDetails = new ArrayList<>();
+
+            // SADECE Floor Plan ise ve detay listesi boş değilse işle
+            if (category == FileCategory.FLOOR_PLAN && details != null && i < details.size()) {
+                String detail = details.get(i);
+                if (detail != null && !detail.isBlank()) {
+                    fileDetails.add(detail);
+                }
+            }
+
             ProjectFile projectFile = ProjectFile.builder()
                     .fileName(file.getOriginalFilename())
                     .fileType(file.getContentType())
@@ -52,7 +63,9 @@ public class ProjeAyarlariService {
                     .fileCategory(category)
                     .uploadDate(LocalDateTime.now())
                     .project(project)
+                    .projectFileDetails(fileDetails) // Kategoriye göre dolu veya boş gider
                     .build();
+
             project.getFiles().add(projectFile);
         }
     }
@@ -61,7 +74,8 @@ public class ProjeAyarlariService {
     public SirketProjeAyarlaResponseDTO projeEkle(
             SirketProjeAyarlaRequestDTO requestDTO,
             List<MultipartFile> images,
-            List<MultipartFile> floorPlans) {
+            List<MultipartFile> floorPlans,
+            List<String> floorPlanDetails) {
 
         SirketProjeAyarlaResponseDTO responseDTO = new SirketProjeAyarlaResponseDTO();
 
@@ -88,8 +102,8 @@ public class ProjeAyarlariService {
                     .user(user)
                     .build();
 
-            dosyalariEkle(project, images, FileCategory.IMAGE);
-            dosyalariEkle(project, floorPlans, FileCategory.FLOOR_PLAN);
+            dosyalariEkle(project, images, null, FileCategory.IMAGE);
+            dosyalariEkle(project, floorPlans, floorPlanDetails, FileCategory.FLOOR_PLAN);
 
             CompanyProject savedProject = projectRepository.save(project);
             log.info("Proje kaydedildi: ID={}, Ad={}, Dosya Sayısı={}",
@@ -306,7 +320,8 @@ public class ProjeAyarlariService {
             Long projectId,
             SirketProjeGuncelleRequestDTO requestDTO,
             List<MultipartFile> newImages,
-            List<MultipartFile> newFloorPlans) {
+            List<MultipartFile> newFloorPlans,
+            List<String> newFloorPlanDetails) { // ✅ Detaylar eklendi
 
         SirketProjeGuncelleResponseDTO responseDTO = new SirketProjeGuncelleResponseDTO();
 
@@ -321,8 +336,9 @@ public class ProjeAyarlariService {
 
             updateProjectFields(project, requestDTO);
 
-            dosyalariEkle(project, newImages, FileCategory.IMAGE);
-            dosyalariEkle(project, newFloorPlans, FileCategory.FLOOR_PLAN);
+            // ✅ Resimler için detay null, kat planları için detaylar gönderiliyor
+            dosyalariEkle(project, newImages, null, FileCategory.IMAGE);
+            dosyalariEkle(project, newFloorPlans, newFloorPlanDetails, FileCategory.FLOOR_PLAN);
 
             CompanyProject updatedProject = projectRepository.save(project);
             log.info("Proje güncellendi: ID={}, Ad={}, Toplam Dosya={}",
@@ -381,7 +397,8 @@ public class ProjeAyarlariService {
                 .fileName(file.getFileName())
                 .fileType(file.getFileType())
                 .fileSize(file.getFileSize())
-                .fileCategory(file.getFileCategory())  // ✅ YENİ
+                .fileCategory(file.getFileCategory())
+                .projectFileDetails(file.getProjectFileDetails()) // ✅ Detaylar eklendi
                 .uploadDate(file.getUploadDate())
                 .build();
     }
@@ -393,8 +410,9 @@ public class ProjeAyarlariService {
                 .fileName(file.getFileName())
                 .fileType(file.getFileType())
                 .fileSize(file.getFileSize())
-                .fileCategory(file.getFileCategory())  // ✅ YENİ
+                .fileCategory(file.getFileCategory())
                 .fileData(Base64.getEncoder().encodeToString(file.getFileData()))
+                .projectFileDetails(file.getProjectFileDetails()) // ✅ Detaylar eklendi
                 .uploadDate(file.getUploadDate())
                 .build();
     }

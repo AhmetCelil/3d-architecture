@@ -4,6 +4,7 @@ import com.example.commerce.adminpanel.enums.FileCategory;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 // Dosya meta verisi (liste için)
 @Getter
@@ -18,5 +19,5 @@ public class ProjectFileMetaDTO {
     private Long fileSize;
     private LocalDateTime uploadDate;
     private FileCategory fileCategory;
-
+    private List<String> projectFileDetails;
 }

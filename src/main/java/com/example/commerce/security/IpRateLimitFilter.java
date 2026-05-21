@@ -9,13 +9,14 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class IpRateLimitFilter implements Filter {
+public class IpRateLimitFilter extends OncePerRequestFilter implements Filter {
 
     private final Cache<String, Bucket> cache = Caffeine.newBuilder()
             .expireAfterWrite(1, TimeUnit.HOURS)
@@ -24,8 +25,8 @@ public class IpRateLimitFilter implements Filter {
 
     private Bucket resolveBucket(String ip) {
         return cache.get(ip, k -> {
-            Refill refill = Refill.intervally(100, Duration.ofMinutes(1)); // 16 istek/dakika
-            Bandwidth limit = Bandwidth.classic(18  , refill);
+            Refill refill = Refill.intervally(1000, Duration.ofMinutes(1)); // 16 istek/dakika
+            Bandwidth limit = Bandwidth.classic(180  , refill);
             return Bucket.builder().addLimit(limit).build();
         });
     }
@@ -36,20 +37,30 @@ public class IpRateLimitFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) request;
-        String ip = getClientIp(req);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
-        if (req.getRequestURI().contains("/login") || req.getRequestURI().contains("/register") || req.getRequestURI().contains("/s3")) {
-            Bucket bucket = resolveBucket(ip);
-            if (bucket.tryConsume(1)) {
-                chain.doFilter(request, response);
-            } else {
-                ((HttpServletResponse) response).setStatus(429); // Too Many Requests
-                response.getWriter().write("Çok fazla istek attınız. Lütfen daha sonra tekrar deneyiniz.");
-            }
+        String ip = getClientIp(request);
+        Bucket bucket = resolveBucket(ip);
+
+        if (bucket.tryConsume(1)) {
+            filterChain.doFilter(request, response);
         } else {
-            chain.doFilter(request, response);
+            response.setStatus(429);
+            response.setContentType("text/plain;charset=UTF-8");
+            response.getWriter().write("Çok fazla istek attınız (IP Limit). Lütfen daha sonra tekrar deneyiniz.");
         }
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        // SADECE bu yollar için filtre ÇALIŞSIN istiyoruz.
+        // Yani bu yollar DIŞINDAKİ her şey için "true" dönmeliyiz ki filtreyi atlasın.
+        boolean isRateLimitedPath = path.contains("/login")
+                || path.contains("/register")
+                || path.contains("/s3");
+
+        return !isRateLimitedPath;
     }
 }

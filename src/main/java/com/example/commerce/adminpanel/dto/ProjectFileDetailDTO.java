@@ -1,9 +1,11 @@
 package com.example.commerce.adminpanel.dto;
 
+import com.example.commerce.adminpanel.entity.ProjectFile;
 import com.example.commerce.adminpanel.enums.FileCategory;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 // Dosya detayı (indirme için)
 @Getter
@@ -19,5 +21,5 @@ public class ProjectFileDetailDTO {
     private String fileData; // Base64
     private LocalDateTime uploadDate;
     private FileCategory fileCategory;
-
+    private List<String> projectFileDetails;
 }

@@ -58,13 +58,13 @@ public class CompanyProject {
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "project_technical_specs", joinColumns = @JoinColumn(name = "project_id"))
-    @Column(name = "specification", length = 500)
+    @Column(name = "specification", length = 10000)
     @Builder.Default
     private List<String> technicalSpecifications = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "project_features", joinColumns = @JoinColumn(name = "project_id"))
-    @Column(name = "feature")
+    @Column(name = "feature", length = 10000)
     @Builder.Default
     private List<String> features = new ArrayList<>();
 
