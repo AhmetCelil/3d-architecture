@@ -10,3 +10,4 @@ public class CommerceApplication {
 		SpringApplication.run(CommerceApplication.class, args);
 	}
 }
+
