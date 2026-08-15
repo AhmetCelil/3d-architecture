@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!--
+        CompanyProject.deleted pattern'i genişletiliyor:
+        - project_file: proje resim/kat planı dosyaları artık hard değil soft delete
+          ediliyor (ProjeAyarlariServiceImpl.dosyaSil).
+        - users, company_memberships: şu an bir silme/deaktive akışı yok, ama
+          User.companyMemberships / Company.projects / Company.memberships
+          cascade=ALL + orphanRemoval=true ile kurulu; deleted kolonu + ilgili
+          sorguların deleted-aware yapılması, ileride bir silme akışı eklendiğinde
+          sessiz hard-delete riskini önlemek için şimdiden hazırlanıyor.
+    -->
+    <changeSet id="010-01-project-file-deleted" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="project_file" columnName="deleted"/></not>
+        </preConditions>
+        <addColumn tableName="project_file">
+            <column name="deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="010-02-users-deleted" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="users" columnName="deleted"/></not>
+        </preConditions>
+        <addColumn tableName="users">
+            <column name="deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="010-03-company-memberships-deleted" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="company_memberships" columnName="deleted"/></not>
+        </preConditions>
+        <addColumn tableName="company_memberships">
+            <column name="deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

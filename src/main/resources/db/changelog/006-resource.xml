@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="006-01-personnel" author="commerce">
+        <createTable tableName="personnel">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_personnel_company" references="companies(id)"/>
+            </column>
+            <column name="full_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="varchar(255)"/>
+            <column name="phone" type="varchar(255)"/>
+            <column name="email" type="varchar(255)"/>
+            <column name="personnel_type" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="006-02-project-tasks-personnel-fk" author="commerce">
+        <addForeignKeyConstraint baseTableName="project_tasks" baseColumnNames="assigned_personnel_id"
+                                  constraintName="fk_project_tasks_personnel"
+                                  referencedTableName="personnel" referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="006-03-subcontractors" author="commerce">
+        <createTable tableName="subcontractors">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_subcontractors_company" references="companies(id)"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tax_number" type="varchar(255)"/>
+            <column name="specialty" type="varchar(255)"/>
+            <column name="contact_person" type="varchar(255)"/>
+            <column name="phone" type="varchar(255)"/>
+            <column name="email" type="varchar(255)"/>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="006-04-subcontractor-assignments" author="commerce">
+        <createTable tableName="subcontractor_assignments">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="project_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_subcontractor_assignments_project" references="company_projects(id)"/>
+            </column>
+            <column name="subcontractor_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_subcontractor_assignments_subcontractor" references="subcontractors(id)"/>
+            </column>
+            <column name="scope_of_work" type="varchar(2000)"/>
+            <column name="contract_amount" type="numeric(18,2)"/>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="006-05-equipment" author="commerce">
+        <createTable tableName="equipment">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_equipment_company" references="companies(id)"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="equipment_type" type="varchar(255)"/>
+            <column name="serial_number" type="varchar(255)"/>
+            <column name="status" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="current_project_id" type="bigint">
+                <constraints foreignKeyName="fk_equipment_current_project" references="company_projects(id)"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="006-06-material-inventory-items" author="commerce">
+        <createTable tableName="material_inventory_items">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="project_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_material_inventory_items_project" references="company_projects(id)"/>
+            </column>
+            <column name="material_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="unit" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity_planned" type="numeric(18,3)"/>
+            <column name="quantity_used" type="numeric(18,3)"/>
+            <column name="quantity_remaining" type="numeric(18,3)"/>
+            <column name="supplier" type="varchar(255)"/>
+            <column name="last_updated" type="timestamp"/>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

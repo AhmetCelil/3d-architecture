@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="005-01-milestones" author="commerce">
+        <createTable tableName="milestones">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="project_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_milestones_project" references="company_projects(id)"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="planned_date" type="date"/>
+            <column name="actual_date" type="date"/>
+            <column name="status" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(1000)"/>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="005-02-project-tasks" author="commerce">
+        <createTable tableName="project_tasks">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="project_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_project_tasks_project" references="company_projects(id)"/>
+            </column>
+            <column name="parent_task_id" type="bigint">
+                <constraints foreignKeyName="fk_project_tasks_parent" references="project_tasks(id)"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="assigned_personnel_id" type="bigint"/>
+            <column name="planned_start" type="date"/>
+            <column name="planned_end" type="date"/>
+            <column name="actual_start" type="date"/>
+            <column name="actual_end" type="date"/>
+            <column name="progress_percent" type="integer"/>
+            <column name="status" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="005-03-site-diary-entries" author="commerce">
+        <createTable tableName="site_diary_entries">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="project_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_site_diary_entries_project" references="company_projects(id)"/>
+            </column>
+            <column name="report_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="weather_condition" type="varchar(255)"/>
+            <column name="workforce_count" type="integer"/>
+            <column name="work_description" type="varchar(4000)"/>
+            <column name="issues_encountered" type="varchar(2000)"/>
+            <column name="reported_by_user_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_site_diary_entries_user" references="users(id)"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

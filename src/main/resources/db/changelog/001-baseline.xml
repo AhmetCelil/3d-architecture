@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!--
+        Bu changelog, Hibernate ddl-auto=update ile daha önce oluşturulmuş mevcut
+        şemayı yakalar. Her changeSet'in preConditions'ı onFail="MARK_RAN" olduğu
+        için: tablo zaten varsa (mevcut dev DB) çalıştırılmadan "uygulanmış" olarak
+        işaretlenir; tablo yoksa (temiz bir DB) normal şekilde oluşturulur.
+    -->
+
+    <changeSet id="001-01-users" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="users"/></not>
+        </preConditions>
+        <createTable tableName="users">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="varchar(255)"/>
+            <column name="api_key" type="varchar(255)"/>
+            <column name="enabled" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-02-user-sequence" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><sequenceExists sequenceName="user_sequence"/></not>
+        </preConditions>
+        <createSequence sequenceName="user_sequence" startValue="1" incrementBy="1"/>
+    </changeSet>
+
+    <changeSet id="001-03-user-profiles" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="user_profiles"/></not>
+        </preConditions>
+        <createTable tableName="user_profiles">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="address" type="varchar(255)"/>
+            <column name="description" type="varchar(255)"/>
+            <column name="first_name" type="varchar(255)"/>
+            <column name="last_name" type="varchar(255)"/>
+            <column name="phone_number" type="varchar(255)"/>
+            <column name="profile_picture" type="varchar(255)"/>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" unique="true"
+                             foreignKeyName="fk_user_profiles_user" references="users(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-04-company-projects" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="company_projects"/></not>
+        </preConditions>
+        <createTable tableName="company_projects">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="unique_code" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="project_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="location" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_area" type="double"/>
+            <column name="start_date" type="date"/>
+            <column name="end_date" type="date"/>
+            <column name="status" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="duration_months" type="integer"/>
+            <column name="description" type="varchar(2000)"/>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_company_projects_user" references="users(id)"/>
+            </column>
+            <column name="deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-05-project-technical-specs" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="project_technical_specs"/></not>
+        </preConditions>
+        <createTable tableName="project_technical_specs">
+            <column name="project_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_project_technical_specs_project" references="company_projects(id)"/>
+            </column>
+            <column name="specification" type="varchar(10000)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-06-project-features" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="project_features"/></not>
+        </preConditions>
+        <createTable tableName="project_features">
+            <column name="project_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_project_features_project" references="company_projects(id)"/>
+            </column>
+            <column name="feature" type="varchar(10000)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-07-project-file" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="project_file"/></not>
+        </preConditions>
+        <createTable tableName="project_file">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="file_data" type="bytea"/>
+            <column name="file_name" type="varchar(255)"/>
+            <column name="file_size" type="bigint"/>
+            <column name="file_type" type="varchar(255)"/>
+            <column name="project_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_project_file_project" references="company_projects(id)"/>
+            </column>
+            <column name="upload_date" type="timestamp"/>
+            <column name="file_category" type="varchar(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-08-project-file-details" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="project_file_details"/></not>
+        </preConditions>
+        <createTable tableName="project_file_details">
+            <column name="project_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_project_file_details_project" references="project_file(id)"/>
+            </column>
+            <column name="project_file_details" type="varchar(10000)"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

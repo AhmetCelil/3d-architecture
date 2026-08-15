@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- BaseEntity (createdAt/updatedAt/@Version) mevcut ana entity'lere eklendi -->
+    <changeSet id="002-01-audit-columns" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="users" columnName="created_at"/></not>
+        </preConditions>
+
+        <addColumn tableName="users">
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </addColumn>
+
+        <addColumn tableName="company_projects">
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </addColumn>
+
+        <addColumn tableName="project_file">
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

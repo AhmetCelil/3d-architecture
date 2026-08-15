@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!--
+        Kat planı görsellerine başlık (örn. "2+1 Tip A") ve oda/alan bazlı
+        yapılandırılmış bilgi (örn. Oturma Odası → 25 m²) eklemek için:
+        - project_file.title kolonu ekleniyor
+        - eski project_file_details (düz String listesi, hiçbir zaman
+          gerçekten doldurulmamış/kullanılmamış ölü kolon) düşürülüyor
+        - yerine project_file_room_details (room_name + detail_value çifti) geliyor
+    -->
+    <changeSet id="009-01-project-file-title" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="project_file" columnName="title"/></not>
+        </preConditions>
+        <addColumn tableName="project_file">
+            <column name="title" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="009-02-drop-project-file-details" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="project_file_details"/>
+        </preConditions>
+        <dropTable tableName="project_file_details"/>
+    </changeSet>
+
+    <changeSet id="009-03-project-file-room-details" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="project_file_room_details"/></not>
+        </preConditions>
+        <createTable tableName="project_file_room_details">
+            <column name="project_file_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_project_file_room_details_file" references="project_file(id)"/>
+            </column>
+            <column name="room_name" type="varchar(255)"/>
+            <column name="detail_value" type="varchar(1000)"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

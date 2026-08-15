@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="004-01-contracts" author="commerce">
+        <createTable tableName="contracts">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="project_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_contracts_project" references="company_projects(id)"/>
+            </column>
+            <column name="contract_number" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="contractor_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="contract_type" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="contract_amount" type="numeric(18,2)"/>
+            <column name="currency" type="varchar(10)" defaultValue="TRY"/>
+            <column name="sign_date" type="date"/>
+            <column name="start_date" type="date"/>
+            <column name="end_date" type="date"/>
+            <column name="status" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="004-02-boq-items" author="commerce">
+        <createTable tableName="boq_items">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="contract_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_boq_items_contract" references="contracts(id)"/>
+            </column>
+            <column name="item_code" type="varchar(255)"/>
+            <column name="description" type="varchar(1000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="unit" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="numeric(18,3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="unit_price" type="numeric(18,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_price" type="numeric(18,2)"/>
+            <column name="category" type="varchar(255)"/>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="004-03-payments" author="commerce">
+        <createTable tableName="payments">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="contract_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_payments_contract" references="contracts(id)"/>
+            </column>
+            <column name="hakedis_no" type="integer"/>
+            <column name="period_start" type="date"/>
+            <column name="period_end" type="date"/>
+            <column name="amount" type="numeric(18,2)"/>
+            <column name="approved_amount" type="numeric(18,2)"/>
+            <column name="status" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_date" type="date"/>
+            <column name="invoice_number" type="varchar(255)"/>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

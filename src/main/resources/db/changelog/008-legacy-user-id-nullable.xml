@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!--
+        001-baseline.xml, company_projects.user_id kolonunu NOT NULL olarak
+        oluşturmuştu (proje eskiden doğrudan bir User'a bağlıydı). 007-backfill,
+        bu ilişkiyi company_id/created_by_user_id/updated_by_user_id'ye taşıdı
+        ama eski user_id kolonunu NOT NULL bırakmıştı; CompanyProject entity'si
+        artık bu alanı hiç set etmediği için proje ekleme insert'leri
+        constraint ihlaliyle başarısız oluyordu. Kolonu silmek yerine (geriye
+        dönük veri kaybı riskini azaltmak için) sadece NOT NULL kısıtı
+        kaldırılıyor.
+    -->
+    <changeSet id="008-01-company-projects-user-id-nullable" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="company_projects" columnName="user_id"/>
+        </preConditions>
+        <dropNotNullConstraint tableName="company_projects" columnName="user_id" columnDataType="bigint"/>
+    </changeSet>
+
+</databaseChangeLog>

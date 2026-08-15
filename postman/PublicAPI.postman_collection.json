@@ -1,0 +1,157 @@
+{
+  "info": {
+    "name": "Public API - Construction Portfolio",
+    "description": "/api/public/** uc noktalarini test etmek icin. Once collection variable'lardaki baseUrl/apiKey/projectId/fileId/uniqueCode degerlerini kendi ortaminiza gore ayarlayin.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "apiKey", "value": "test-local-dev-1786025738" },
+    { "key": "projectId", "value": "1" },
+    { "key": "fileId", "value": "1" },
+    { "key": "uniqueCode", "value": "PRJ-2026-02231024" },
+    { "key": "invalidUniqueCode", "value": "GECERSIZ-KOD" }
+  ],
+  "item": [
+    {
+      "name": "1) Proje listesi (sayfali, API key ile)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "X-API-Key", "value": "{{apiKey}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/public/projeler?page=0&size=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "public", "projeler"],
+          "query": [
+            { "key": "page", "value": "0" },
+            { "key": "size", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "2) Proje detayi (API key ile - schedule/team/contracts dahil)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "X-API-Key", "value": "{{apiKey}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/public/proje/{{projectId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "public", "proje", "{{projectId}}"]
+        }
+      }
+    },
+    {
+      "name": "3) Dosya indirme (raw byte stream)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "X-API-Key", "value": "{{apiKey}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/public/proje/{{projectId}}/dosya/{{fileId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "public", "proje", "{{projectId}}", "dosya", "{{fileId}}"]
+        }
+      }
+    },
+    {
+      "name": "4) Unique code ile herkese acik erisim (key gerekmez)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/public/proje/kod/{{uniqueCode}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "public", "proje", "kod", "{{uniqueCode}}"]
+        }
+      }
+    },
+    {
+      "name": "5a) Hata: gecersiz API key -> 400 INVALID_API_KEY",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "X-API-Key", "value": "yanlis-key" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/public/projeler",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "public", "projeler"]
+        }
+      }
+    },
+    {
+      "name": "5b) Hata: olmayan proje id -> 400 PROJE_BULUNAMADI",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "X-API-Key", "value": "{{apiKey}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/public/proje/99999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "public", "proje", "99999"]
+        }
+      }
+    },
+    {
+      "name": "5c) Hata: olmayan unique code -> 400 PROJE_BULUNAMADI",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/public/proje/kod/{{invalidUniqueCode}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "public", "proje", "kod", "{{invalidUniqueCode}}"]
+        }
+      }
+    },
+    {
+      "name": "5d) Hata: X-API-Key header eksik -> 403",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/public/projeler",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "public", "projeler"]
+        }
+      }
+    },
+    {
+      "name": "6) CORS preflight - izinli origin (localhost:5173)",
+      "request": {
+        "method": "OPTIONS",
+        "header": [
+          { "key": "Origin", "value": "http://localhost:5173" },
+          { "key": "Access-Control-Request-Method", "value": "GET" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/public/proje/kod/{{uniqueCode}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "public", "proje", "kod", "{{uniqueCode}}"]
+        }
+      }
+    },
+    {
+      "name": "6b) CORS preflight - izinsiz origin (evil.example.com) -> reddedilmeli",
+      "request": {
+        "method": "OPTIONS",
+        "header": [
+          { "key": "Origin", "value": "http://evil.example.com" },
+          { "key": "Access-Control-Request-Method", "value": "GET" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/public/proje/kod/{{uniqueCode}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "public", "proje", "kod", "{{uniqueCode}}"]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="003-01-companies" author="commerce">
+        <createTable tableName="companies">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tax_number" type="varchar(255)"/>
+            <column name="sector" type="varchar(255)"/>
+            <column name="address" type="varchar(255)"/>
+            <column name="contact_email" type="varchar(255)"/>
+            <column name="contact_phone" type="varchar(255)"/>
+            <column name="logo_url" type="varchar(255)"/>
+            <column name="api_key_hash" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="api_key_last_rotated_at" type="timestamp"/>
+            <column name="active" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="003-02-company-memberships" author="commerce">
+        <createTable tableName="company_memberships">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_company_memberships_user" references="users(id)"/>
+            </column>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_company_memberships_company" references="companies(id)"/>
+            </column>
+            <column name="company_role" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+        <addUniqueConstraint tableName="company_memberships"
+                              columnNames="user_id, company_id"
+                              constraintName="uk_company_memberships_user_company"/>
+    </changeSet>
+
+    <changeSet id="003-03-company-projects-tenant-columns" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="company_projects" columnName="company_id"/></not>
+        </preConditions>
+        <addColumn tableName="company_projects">
+            <column name="company_id" type="bigint"/>
+            <column name="created_by_user_id" type="bigint"/>
+            <column name="updated_by_user_id" type="bigint"/>
+        </addColumn>
+        <addForeignKeyConstraint baseTableName="company_projects" baseColumnNames="company_id"
+                                  constraintName="fk_company_projects_company"
+                                  referencedTableName="companies" referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="company_projects" baseColumnNames="created_by_user_id"
+                                  constraintName="fk_company_projects_created_by"
+                                  referencedTableName="users" referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="company_projects" baseColumnNames="updated_by_user_id"
+                                  constraintName="fk_company_projects_updated_by"
+                                  referencedTableName="users" referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>

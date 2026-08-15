@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!--
+        Mevcut model: her CompanyProject doğrudan bir User'a bağlıydı (user_id).
+        Bu changeSet, en az bir proje sahibi olan her User için bir Company
+        oluşturur, o kullanıcıyı OWNER olarak bağlar ve projelerini yeni
+        company_id'ye taşır. Kullanıcının eski (düz metin) api_key değeri -
+        varsa - hash'lenerek Company.apiKeyHash'e taşınır; böylece ApiKeyService
+        ile aynı SHA-256+Base64 algoritması sayesinde MEVCUT ham API key'ler
+        migration sonrasında da çalışmaya devam eder.
+    -->
+    <changeSet id="007-01-backfill-company-from-users" author="commerce" dbms="postgresql">
+        <sql>
+            CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+            WITH owners AS (
+                SELECT DISTINCT u.id AS user_id, u.email, u.api_key
+                FROM users u
+                JOIN company_projects cp ON cp.user_id = u.id
+            ),
+            new_companies AS (
+                INSERT INTO companies (name, api_key_hash, api_key_last_rotated_at, active, created_at, updated_at, version)
+                SELECT o.email,
+                       encode(digest(COALESCE(o.api_key, encode(gen_random_bytes(32), 'hex')), 'sha256'), 'base64'),
+                       now(), true, now(), now(), 0
+                FROM owners o
+                RETURNING id, name
+            )
+            INSERT INTO company_memberships (user_id, company_id, company_role, created_at, updated_at, version)
+            SELECT o.user_id, nc.id, 'OWNER', now(), now(), 0
+            FROM owners o
+            JOIN new_companies nc ON nc.name = o.email;
+
+            UPDATE company_projects cp
+            SET company_id = cm.company_id,
+                created_by_user_id = cp.user_id,
+                updated_by_user_id = cp.user_id
+            FROM company_memberships cm
+            WHERE cm.user_id = cp.user_id;
+        </sql>
+    </changeSet>
+
+    <changeSet id="007-02-company-projects-company-not-null" author="commerce">
+        <addNotNullConstraint tableName="company_projects" columnName="company_id" columnDataType="bigint"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,81 @@
+spring:
+  # ===== JACKSON =====
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false
+    mapper:
+      accept-case-insensitive-enums: true
+
+  # ===== LIQUIBASE =====
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+  # ===== DATABASE CONFIGURATION =====
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/commerce}
+    username: ${DB_USERNAME:user}
+    password: ${DB_PASSWORD:changeme}
+    driver-class-name: org.postgresql.Driver
+
+  # ===== JPA / HIBERNATE =====
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+
+  # ===== MULTIPART (Unity WebGL build dosyaları ~50-100MB olabiliyor) =====
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+
+# ===== SERVER CONFIGURATION =====
+server:
+  port: 8080
+  tomcat:
+    max-http-form-post-size: 209715200  # 200MB
+    max-parameter-count: 20000
+    max-http-header-size: 8KB
+    threads:
+      max: 200
+      min-spare: 10
+
+# ===== LOGGING =====
+logging:
+  level:
+    com.example.commerce: DEBUG
+
+# ===== AWS S3 CONFIGURATION =====
+aws:
+  s3:
+    accessKey: ${AWS_ACCESS_KEY}
+    secretKey: ${AWS_SECRET_KEY}
+    region: ${AWS_REGION:eu-north-1}
+    bucketName: ${AWS_S3_BUCKET:projects3d}
+
+# ===== APPLICATION CONFIGURATION =====
+app:
+  name: Unity S3 File Server
+  version: 1.0.0
+  environment: local
+  cors:
+    allowed-origins:
+      # setAllowedOriginPatterns kullanıldığı için port'ta "*" desteklenir
+      # (Vite birden fazla FE açıkken 5173 doluysa 5174/5175'e kayabiliyor)
+      - "http://localhost:*"
+      - "http://127.0.0.1:*"
+
+mail:
+  brevo:
+    api-key: ${BREVO_API_KEY}
+    sender: ${MAIL_SENDER:sender@example.com}
+
+recaptcha:
+  secret-key: ${RECAPTCHA_SECRET_KEY}
+  verify-url: https://www.google.com/recaptcha/api/siteverify
+  min-score: 0.5
