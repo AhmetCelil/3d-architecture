@@ -2,6 +2,7 @@ package com.example.commerce.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.MultipartConfigElement;
 import org.apache.catalina.connector.Connector;
@@ -18,13 +19,17 @@ import org.springframework.web.multipart.support.StandardServletMultipartResolve
 public class WebConfig {
 
     /**
-     * Multipart dosya yükleme ayarları
+     * Multipart dosya yükleme ayarları.
+     * Bu bean tanımlı olduğu için Spring Boot'un application-local.yml'deki
+     * spring.servlet.multipart.max-file-size/max-request-size (200MB) ayarlarını
+     * otomatik uygulaması devre dışı kalır (@ConditionalOnMissingBean) — limitler
+     * burada yml ile tutarlı olacak şekilde ayarlanmalı.
      */
     @Bean
     public MultipartConfigElement multipartConfigElement() {
         MultipartConfigFactory factory = new MultipartConfigFactory();
-        factory.setMaxFileSize(DataSize.ofMegabytes(10));
-        factory.setMaxRequestSize(DataSize.ofMegabytes(50));
+        factory.setMaxFileSize(DataSize.ofMegabytes(200));
+        factory.setMaxRequestSize(DataSize.ofMegabytes(200));
         factory.setFileSizeThreshold(DataSize.ofKilobytes(2));
         return factory.createMultipartConfig();
     }
@@ -75,6 +80,7 @@ public class WebConfig {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         return mapper;
     }
 }

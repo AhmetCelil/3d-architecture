@@ -17,7 +17,7 @@ public class UserDetailsServiceConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return email -> {
-            User user = userRepository.findByEmail(email)
+            User user = userRepository.findByEmailAndDeletedFalse(email)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
             return org.springframework.security.core.userdetails.User
                     .withUsername(user.getEmail())

@@ -3,6 +3,8 @@ package com.example.commerce.adminpanel.entity;
 import com.example.commerce.adminpanel.enums.ProjectCategory;
 import com.example.commerce.adminpanel.enums.ProjectStatus;
 import com.example.commerce.auth.entity.User;
+import com.example.commerce.common.entity.BaseEntity;
+import com.example.commerce.tenant.entity.Company;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,7 +20,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CompanyProject {
+@EqualsAndHashCode(callSuper = false)
+public class CompanyProject extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -73,8 +76,16 @@ public class CompanyProject {
     private List<ProjectFile> files = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_user_id")
+    private User createdByUser;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "updated_by_user_id")
+    private User updatedByUser;
 
     private boolean deleted = false;
 

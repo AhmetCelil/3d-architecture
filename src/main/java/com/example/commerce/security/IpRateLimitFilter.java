@@ -57,7 +57,8 @@ public class IpRateLimitFilter extends OncePerRequestFilter implements Filter {
         String path = request.getRequestURI();
         boolean isRateLimitedPath = path.contains("/login")
                 || path.contains("/register")
-                || path.contains("/s3");
+                || path.contains("/s3")
+                || path.contains("/api/admin");
 
         return !isRateLimitedPath;
     }

@@ -31,11 +31,12 @@ public class ProjeAyarlariController {
         return ResponseEntity.ok(projeService.projeEkle(requestDTO, images, floorPlans));
     }
 
-    @Operation(summary = "Şirket admininin kendi eklediği projeleri listeler (dosyalar sadece meta data)")
+    @Operation(summary = "Şirket admininin kendi eklediği projeleri sayfalı olarak listeler (dosyalar sadece meta data)")
     @PreAuthorize("hasAuthority('SIRKET')")
     @GetMapping("/projeleri-listele")
-    public ResponseEntity<SirketProjelerListeleResponseDTO> sirketProjeleriListele() {
-        return ResponseEntity.ok(projeService.projeleriListele());
+    public ResponseEntity<SirketProjelerListeleResponseDTO> sirketProjeleriListele(
+            @ModelAttribute ProjeleriListeleRequestDTO request) {
+        return ResponseEntity.ok(projeService.projeleriListele(request));
     }
 
     @Operation(summary = "Proje detayını dosyalarla birlikte getirir")
@@ -78,4 +79,5 @@ public class ProjeAyarlariController {
             @PathVariable Long dosyaId) {
         return ResponseEntity.ok(projeService.dosyaSil(projeId, dosyaId));
     }
+
 }

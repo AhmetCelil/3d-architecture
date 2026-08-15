@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -29,4 +30,6 @@ public class ProjeListDataResponseDTO{
     private List<String> technicalSpecifications;
     private List<String> features;
     private List<ProjectFileMetaDTO> files; // ✅ Sadece meta data
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

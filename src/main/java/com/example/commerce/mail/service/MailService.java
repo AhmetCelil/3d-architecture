@@ -1,11 +1,12 @@
 package com.example.commerce.mail.service;
 
-import com.example.commerce.auth.entity.User;
-import com.example.commerce.auth.repository.UserRepository;
 import com.example.commerce.basedtos.AppMessageType;
 import com.example.commerce.exception.BusinessServiceException;
 import com.example.commerce.mail.dto.MailRequestDTO;
 import com.example.commerce.mail.dto.MailResponseDTO;
+import com.example.commerce.tenant.entity.Company;
+import com.example.commerce.tenant.repository.CompanyRepository;
+import com.example.commerce.tenant.service.ApiKeyService;
 import com.example.commerce.util.AppMessageUtil;
 import com.example.commerce.altcha.AltchaService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MailService {
 
-    private final UserRepository userRepository;
+    private final CompanyRepository companyRepository;
+    private final ApiKeyService apiKeyService;
     private final AltchaService altchaService;
 
     @Value("${mail.brevo.api-key}")
@@ -52,7 +54,10 @@ public class MailService {
         }
 
         MailResponseDTO responseDTO = new MailResponseDTO();
-        User user = getUserByApiKey(apiKey);
+        Company company = getCompanyByApiKey(apiKey);
+        String recipient = (company.getContactEmail() != null && !company.getContactEmail().isBlank())
+                ? company.getContactEmail()
+                : company.getName();
 
         try {
             RestTemplate restTemplate = new RestTemplate(getFactory());
@@ -63,7 +68,7 @@ public class MailService {
 
             Map<String, Object> requestBody = Map.of(
                     "sender", Map.of("name", "İnşaat Portfolyo Bildirimi", "email", senderMail.trim()),
-                    "to", List.of(Map.of("email", user.getEmail(), "name", user.getEmail())),
+                    "to", List.of(Map.of("email", recipient, "name", recipient)),
                     "subject", "Yeni Proje İletişim Talebi",
                     "htmlContent", buildHtml(dto)
             );
@@ -97,8 +102,8 @@ public class MailService {
         return factory;
     }
 
-    private User getUserByApiKey(String apiKey) {
-        return userRepository.findByApiKey(apiKey)
+    private Company getCompanyByApiKey(String apiKey) {
+        return companyRepository.findByApiKeyHashAndActiveTrue(apiKeyService.hash(apiKey))
                 .orElseThrow(() -> new BusinessServiceException("INVALID_API_KEY", "Geçersiz API Key"));
     }
 

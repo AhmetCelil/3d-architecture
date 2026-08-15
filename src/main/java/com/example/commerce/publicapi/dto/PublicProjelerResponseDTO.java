@@ -1,13 +1,6 @@
 package com.example.commerce.publicapi.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.example.commerce.basedtos.PageResponseDto;
 
-import java.util.List;
-
-@Getter
-@Setter
-public class PublicProjelerResponseDTO {
-    private List<PublicProjeDTO> data;
-
+public class PublicProjelerResponseDTO extends PageResponseDto<PublicProjeDTO> {
 }

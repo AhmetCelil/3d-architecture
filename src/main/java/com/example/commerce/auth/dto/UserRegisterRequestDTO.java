@@ -12,4 +12,7 @@ public class UserRegisterRequestDTO {
     private String email;
     private String password;
     private Role role;
+
+    /** SIRKET rolündeki kayıtlar için firma adı; boşsa e-posta üzerinden türetilir. */
+    private String companyName;
 }

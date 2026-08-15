@@ -1,6 +1,7 @@
 package com.example.commerce.adminpanel.entity;
 
 import com.example.commerce.adminpanel.enums.FileCategory;
+import com.example.commerce.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,7 +15,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProjectFile {
+@EqualsAndHashCode(callSuper = false)
+public class ProjectFile extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,9 +44,15 @@ public class ProjectFile {
     @Column(name = "file_category")
     private FileCategory fileCategory;
 
+    /** Kat planı görselleri için başlık, örn. "2+1 Tip A Kat Planı". */
+    @Column(name = "title")
+    private String title;
+
+    /** Kat planı görseline bağlı oda/alan bazlı bilgiler (örn. Oturma Odası → 25 m²). */
     @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "project_file_details", joinColumns = @JoinColumn(name = "project_id"))
-    @Column(name = "project_file_details", length = 10000)
+    @CollectionTable(name = "project_file_room_details", joinColumns = @JoinColumn(name = "project_file_id"))
     @Builder.Default
-    private List<String> projectFileDetails = new ArrayList<>();
+    private List<FloorPlanRoomDetail> roomDetails = new ArrayList<>();
+
+    private boolean deleted = false;
 }

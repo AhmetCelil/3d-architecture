@@ -1,6 +1,5 @@
 package com.example.commerce.adminpanel.dto;
 
-import com.example.commerce.adminpanel.entity.ProjectFile;
 import com.example.commerce.adminpanel.enums.ProjectCategory;
 import com.example.commerce.adminpanel.enums.ProjectStatus;
 import lombok.Getter;
@@ -23,4 +22,7 @@ public class SirketProjeAyarlaRequestDTO {
     private String description;
     private List<String> technicalSpecifications;
     private List<String> features;
+
+    /** "floorPlans" multipart dosya listesiyle index bazında eşleşir. */
+    private List<FloorPlanInputDTO> floorPlanDetails;
 }

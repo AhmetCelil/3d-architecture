@@ -1,6 +1,5 @@
 package com.example.commerce.adminpanel.dto;
 
-import com.example.commerce.adminpanel.entity.ProjectFile;
 import com.example.commerce.adminpanel.enums.FileCategory;
 import lombok.*;
 
@@ -21,5 +20,6 @@ public class ProjectFileDetailDTO {
     private String fileData; // Base64
     private LocalDateTime uploadDate;
     private FileCategory fileCategory;
-    private List<String> projectFileDetails;
+    private String title;
+    private List<FloorPlanRoomDetailDTO> roomDetails;
 }

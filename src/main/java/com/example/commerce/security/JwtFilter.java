@@ -98,14 +98,12 @@ public class JwtFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getServletPath();
 
-        // JWT kontrolü yapılmayacak endpointler
-        return path.startsWith("/auth")
+        // JWT kontrolü yapılmayacak endpointler (gerçekten herkese açık olanlar)
+        return path.startsWith("/api/auth")
+                || path.startsWith("/api/public")
                 || path.startsWith("/v3/api-docs")
                 || path.startsWith("/swagger-ui")
-                || path.startsWith("/swagger-ui.html")
-                || path.startsWith("/api/s3")
-                || path.startsWith("/admin-profil")
-                || path.startsWith("/user");
+                || path.startsWith("/swagger-ui.html");
     }
 
 

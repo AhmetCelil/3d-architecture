@@ -19,5 +19,6 @@ public class ProjectFileMetaDTO {
     private Long fileSize;
     private LocalDateTime uploadDate;
     private FileCategory fileCategory;
-    private List<String> projectFileDetails;
+    private String title;
+    private List<FloorPlanRoomDetailDTO> roomDetails;
 }

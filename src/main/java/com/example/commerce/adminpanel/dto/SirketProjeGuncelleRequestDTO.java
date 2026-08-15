@@ -5,7 +5,6 @@ import com.example.commerce.adminpanel.enums.ProjectStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,7 +28,6 @@ public class SirketProjeGuncelleRequestDTO {
 
     private List<String> features;
 
-    // YENİ DOSYALAR
-    private List<MultipartFile> newImages;
-    private List<MultipartFile> newFloorPlans;
+    /** "newFloorPlans" multipart dosya listesiyle index bazında eşleşir. */
+    private List<FloorPlanInputDTO> newFloorPlanDetails;
 }

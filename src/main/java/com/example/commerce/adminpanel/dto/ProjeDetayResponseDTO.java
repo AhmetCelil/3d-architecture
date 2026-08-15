@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 // Proje detay DTO (yeni)
@@ -28,4 +29,6 @@ public class ProjeDetayResponseDTO {
     private List<String> technicalSpecifications;
     private List<String> features;
     private List<ProjectFileDetailDTO> files; // ✅ Full data ile
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

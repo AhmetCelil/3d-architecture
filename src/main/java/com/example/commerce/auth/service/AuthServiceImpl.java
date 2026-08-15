@@ -2,18 +2,26 @@ package com.example.commerce.auth.service;
 
 import com.example.commerce.auth.dto.*;
 import com.example.commerce.auth.entity.User;
+import com.example.commerce.auth.enums.Role;
 import com.example.commerce.auth.repository.UserRepository;
 import com.example.commerce.basedtos.AppMessageType;
 import com.example.commerce.exception.AppException;
 import com.example.commerce.exception.BusinessServiceException;
 import com.example.commerce.exception.ValidationServiceException;
 import com.example.commerce.security.JwtService;
+import com.example.commerce.tenant.entity.Company;
+import com.example.commerce.tenant.entity.CompanyMembership;
+import com.example.commerce.tenant.enums.CompanyRole;
+import com.example.commerce.tenant.repository.CompanyMembershipRepository;
+import com.example.commerce.tenant.repository.CompanyRepository;
+import com.example.commerce.tenant.service.ApiKeyService;
 import com.example.commerce.util.AppMessageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -34,6 +42,9 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final CompanyRepository companyRepository;
+    private final CompanyMembershipRepository companyMembershipRepository;
+    private final ApiKeyService apiKeyService;
 
     @Override
     @Transactional
@@ -58,6 +69,31 @@ public class AuthServiceImpl implements AuthService {
 
             userRepository.save(user);
 
+            String rawApiKey = null;
+            if (requestDTO.getRole() == Role.SIRKET) {
+                rawApiKey = apiKeyService.generateRawKey();
+
+                String companyName = (requestDTO.getCompanyName() != null && !requestDTO.getCompanyName().isBlank())
+                        ? requestDTO.getCompanyName()
+                        : requestDTO.getEmail();
+
+                Company company = Company.builder()
+                        .name(companyName)
+                        .apiKeyHash(apiKeyService.hash(rawApiKey))
+                        .apiKeyLastRotatedAt(LocalDateTime.now())
+                        .active(true)
+                        .build();
+                companyRepository.save(company);
+
+                CompanyMembership membership = CompanyMembership.builder()
+                        .user(user)
+                        .company(company)
+                        .companyRole(CompanyRole.OWNER)
+                        .build();
+                companyMembershipRepository.save(membership);
+            }
+
+            responseDTO.setApiKey(rawApiKey);
             responseDTO.setMessages(List.of(
                     AppMessageUtil.createWithCode(MSG_KULLANICI_KAYDEDILDI, AppMessageType.SUCCESS)
             ));
@@ -91,7 +127,7 @@ public class AuthServiceImpl implements AuthService {
                 throw new ValidationServiceException(MSG_SIFRE_UZUNLUK_HATASI, "Şifre uzunluğu 4 ile 40 karakter arasında olmalıdır");
             }
 
-            User user = userRepository.findByEmail(requestDTO.getEmail())
+            User user = userRepository.findByEmailAndDeletedFalse(requestDTO.getEmail())
                     .orElseThrow(() -> new BusinessServiceException(MSG_KULLANICI_BULUNAMADI, "Kullanıcı bulunamadı: {0}", requestDTO.getEmail()));
 
             if (!passwordEncoder.matches(requestDTO.getPassword(), user.getPassword())) {
