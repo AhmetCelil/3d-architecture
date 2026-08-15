@@ -1,5 +1,6 @@
 package com.example.commerce.security;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;
@@ -42,25 +43,35 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         final String jwt = authHeader.substring(7);
-        final String username = jwtService.extractUsername(jwt);
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                String role = jwtService.extractRole(jwt); // ADMIN, USER, SIRKET
+        // Süresi dolmuş, imzası geçersiz ya da bozuk token'lar jjwt tarafında JwtException
+        // (ExpiredJwtException, SignatureException, MalformedJwtException) olarak fırlatılıyordu
+        // ve burada yakalanmadığı için istek 500 ile patlıyordu. Bu token'lar artık sadece
+        // kimliksiz bırakılıyor; SecurityConfig'teki .anyRequest().authenticated() kuralı
+        // devreye girip temiz bir 401 dönmesini sağlıyor.
+        try {
+            final String username = jwtService.extractUsername(jwt);
 
-                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    String role = jwtService.extractRole(jwt); // ADMIN, USER, SIRKET
 
-                // Rate limit kontrolü
-                if (!checkRateLimit(username, role)) {
-                    response.setStatus(429);
-                    response.getWriter().write("Too many requests. Please try again later.");
-                    return;
+                    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
+
+                    // Rate limit kontrolü
+                    if (!checkRateLimit(username, role)) {
+                        response.setStatus(429);
+                        response.getWriter().write("Too many requests. Please try again later.");
+                        return;
+                    }
+
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
-
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
-                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
+        } catch (JwtException | IllegalArgumentException ex) {
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
