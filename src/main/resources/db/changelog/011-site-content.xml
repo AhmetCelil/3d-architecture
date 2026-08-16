@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="011-01-company-profiles" author="commerce">
+        <createTable tableName="company_profiles">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false" unique="true"
+                             foreignKeyName="fk_company_profiles_company" references="companies(id)"/>
+            </column>
+            <column name="about_title" type="varchar(255)"/>
+            <column name="about_description" type="varchar(4000)"/>
+            <column name="mission" type="varchar(2000)"/>
+            <column name="vision" type="varchar(2000)"/>
+            <column name="founded_year" type="int"/>
+            <column name="story" type="varchar(4000)"/>
+            <column name="homepage_title" type="varchar(255)"/>
+            <column name="homepage_subtitle" type="varchar(2000)"/>
+            <column name="completed_projects_count" type="int"/>
+            <column name="ongoing_projects_count" type="int"/>
+            <column name="experience_years" type="int"/>
+            <column name="happy_clients_count" type="int"/>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="011-02-company-values" author="commerce">
+        <createTable tableName="company_values">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_company_values_company" references="companies(id)"/>
+            </column>
+            <column name="title" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(2000)"/>
+            <column name="icon_key" type="varchar(100)"/>
+            <column name="display_order" type="int" defaultValueNumeric="0"/>
+            <column name="deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="011-03-company-why-us-items" author="commerce">
+        <createTable tableName="company_why_us_items">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_company_why_us_items_company" references="companies(id)"/>
+            </column>
+            <column name="title" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(2000)"/>
+            <column name="icon_key" type="varchar(100)"/>
+            <column name="display_order" type="int" defaultValueNumeric="0"/>
+            <column name="deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="011-04-team-members" author="commerce">
+        <createTable tableName="team_members">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_team_members_company" references="companies(id)"/>
+            </column>
+            <column name="full_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="varchar(255)"/>
+            <column name="description" type="varchar(2000)"/>
+            <column name="display_order" type="int" defaultValueNumeric="0"/>
+            <column name="active" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="011-05-company-contact-infos" author="commerce">
+        <createTable tableName="company_contact_infos">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false" unique="true"
+                             foreignKeyName="fk_company_contact_infos_company" references="companies(id)"/>
+            </column>
+            <column name="address" type="varchar(2000)"/>
+            <column name="phone" type="varchar(50)"/>
+            <column name="phone_secondary" type="varchar(50)"/>
+            <column name="email" type="varchar(255)"/>
+            <column name="whatsapp_number" type="varchar(50)"/>
+            <column name="instagram_url" type="varchar(500)"/>
+            <column name="twitter_url" type="varchar(500)"/>
+            <column name="facebook_url" type="varchar(500)"/>
+            <column name="linkedin_url" type="varchar(500)"/>
+            <column name="youtube_url" type="varchar(500)"/>
+            <column name="map_latitude" type="numeric(10,7)"/>
+            <column name="map_longitude" type="numeric(10,7)"/>
+            <column name="map_embed_url" type="varchar(1000)"/>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="011-06-company-working-hours" author="commerce">
+        <createTable tableName="company_working_hours">
+            <column name="contact_info_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_company_working_hours_contact_info" references="company_contact_infos(id)"/>
+            </column>
+            <column name="day_of_week" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="opens_at" type="varchar(10)"/>
+            <column name="closes_at" type="varchar(10)"/>
+            <column name="closed" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="011-07-contact-messages" author="commerce">
+        <createTable tableName="contact_messages">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_contact_messages_company" references="companies(id)"/>
+            </column>
+            <column name="full_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone" type="varchar(50)"/>
+            <column name="subject" type="varchar(255)"/>
+            <column name="message" type="varchar(4000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_read" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="011-08-announcements" author="commerce">
+        <createTable tableName="announcements">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_announcements_company" references="companies(id)"/>
+            </column>
+            <column name="title" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="message" type="varchar(2000)"/>
+            <column name="announcement_type" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="image_data" type="bytea"/>
+            <column name="image_file_name" type="varchar(255)"/>
+            <column name="image_file_type" type="varchar(100)"/>
+            <column name="link_url" type="varchar(1000)"/>
+            <column name="button_text" type="varchar(100)"/>
+            <column name="start_date" type="timestamp"/>
+            <column name="end_date" type="timestamp"/>
+            <column name="active" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="priority" type="int" defaultValueNumeric="0"/>
+            <column name="display_frequency" type="varchar(20)" defaultValue="HER_ZAMAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

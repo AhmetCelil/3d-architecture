@@ -15,5 +15,6 @@
     <include file="db/changelog/008-legacy-user-id-nullable.xml" relativeToChangelogFile="false"/>
     <include file="db/changelog/009-floor-plan-room-details.xml" relativeToChangelogFile="false"/>
     <include file="db/changelog/010-soft-delete-extensions.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/011-site-content.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>
