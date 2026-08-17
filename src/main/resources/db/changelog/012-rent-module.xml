@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="012-01-rent-settings" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="rent_settings"/></not>
+        </preConditions>
+        <createTable tableName="rent_settings">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false" unique="true"
+                             foreignKeyName="fk_rent_settings_company" references="companies(id)"/>
+            </column>
+            <column name="enabled" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="012-02-villa" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="villa"/></not>
+        </preConditions>
+        <createTable tableName="villa">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_villa_company" references="companies(id)"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(4000)"/>
+            <column name="capacity" type="int"/>
+            <column name="price" type="numeric(12,2)"/>
+            <column name="price_visible" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hold_expiry_hours" type="int"/>
+            <column name="active" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="012-03-villa-image" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="villa_image"/></not>
+        </preConditions>
+        <createTable tableName="villa_image">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="villa_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_villa_image_villa" references="villa(id)"/>
+            </column>
+            <column name="file_data" type="bytea"/>
+            <column name="file_name" type="varchar(255)"/>
+            <column name="file_size" type="bigint"/>
+            <column name="file_type" type="varchar(255)"/>
+            <column name="upload_date" type="timestamp"/>
+            <column name="sort_order" type="int" defaultValueNumeric="0"/>
+            <column name="deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="012-04-villa-price-override" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="villa_price_override"/></not>
+        </preConditions>
+        <createTable tableName="villa_price_override">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="villa_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_villa_price_override_villa" references="villa(id)"/>
+            </column>
+            <column name="start_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="numeric(12,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="note" type="varchar(500)"/>
+            <column name="deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="012-05-villa-availability-block" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="villa_availability_block"/></not>
+        </preConditions>
+        <createTable tableName="villa_availability_block">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="villa_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_villa_availability_block_villa" references="villa(id)"/>
+            </column>
+            <column name="start_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="note" type="varchar(500)"/>
+            <column name="deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="012-06-villa-reservation" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="villa_reservation"/></not>
+        </preConditions>
+        <createTable tableName="villa_reservation">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="villa_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_villa_reservation_villa" references="villa(id)"/>
+            </column>
+            <column name="guest_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="guest_surname" type="varchar(255)"/>
+            <column name="guest_email" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="guest_phone" type="varchar(50)"/>
+            <column name="check_in" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="check_out" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hold_expires_at" type="timestamp"/>
+            <column name="message" type="varchar(2000)"/>
+            <column name="kvkk_onay" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by_admin" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

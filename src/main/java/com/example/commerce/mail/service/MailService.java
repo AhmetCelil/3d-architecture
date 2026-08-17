@@ -59,6 +59,26 @@ public class MailService {
                 ? company.getContactEmail()
                 : company.getName();
 
+        boolean success = sendHtmlMail(recipient, recipient, "Yeni Proje İletişim Talebi", buildHtml(dto));
+        if (success) {
+            responseDTO.setSuccess(true);
+            responseDTO.setMessages(List.of(AppMessageUtil.createWithCode("Başarılı", AppMessageType.SUCCESS)));
+        } else {
+            responseDTO.setSuccess(false);
+        }
+        return responseDTO;
+    }
+
+    private boolean verifyCaptcha(String payload) {
+        return altchaService.verify(payload);
+    }
+
+    /**
+     * Brevo üzerinden düz bir HTML mail gönderir. Kayıt oluşturma/güncelleme yapan
+     * modüller (örn. villa rezervasyonu) captcha/tenant bilgisiyle uğraşmadan bu
+     * metodu kullanır; mail paketi çağıran modülün türünü bilmez.
+     */
+    public boolean sendHtmlMail(String toEmail, String toName, String subject, String htmlContent) {
         try {
             RestTemplate restTemplate = new RestTemplate(getFactory());
 
@@ -68,27 +88,19 @@ public class MailService {
 
             Map<String, Object> requestBody = Map.of(
                     "sender", Map.of("name", "İnşaat Portfolyo Bildirimi", "email", senderMail.trim()),
-                    "to", List.of(Map.of("email", recipient, "name", recipient)),
-                    "subject", "Yeni Proje İletişim Talebi",
-                    "htmlContent", buildHtml(dto)
+                    "to", List.of(Map.of("email", toEmail, "name", toName)),
+                    "subject", subject,
+                    "htmlContent", htmlContent
             );
 
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
             ResponseEntity<String> response = restTemplate.postForEntity(BREVO_URL, request, String.class);
 
-            if (response.getStatusCode().is2xxSuccessful()) {
-                responseDTO.setSuccess(true);
-                responseDTO.setMessages(List.of(AppMessageUtil.createWithCode("Başarılı", AppMessageType.SUCCESS)));
-            }
+            return response.getStatusCode().is2xxSuccessful();
         } catch (Exception e) {
             log.error("Mail hatası: ", e);
-            responseDTO.setSuccess(false);
+            return false;
         }
-        return responseDTO;
-    }
-
-    private boolean verifyCaptcha(String payload) {
-        return altchaService.verify(payload);
     }
     private String buildHtml(MailRequestDTO dto) {
         return String.format("<html><body><h2>Yeni Talep</h2><p>%s %s</p><p>%s</p></body></html>",
