@@ -6,9 +6,6 @@ import com.example.commerce.publicapi.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,23 +47,7 @@ public class PublicApiController {
             @RequestHeader("X-API-Key") String apiKey,
             @PathVariable Long projeId,
             @PathVariable Long dosyaId) {
-        PublicProjeService.DownloadableFile file = publicProjeService.dosyaIndir(apiKey, projeId, dosyaId);
-
-        MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
-        if (file.fileType() != null && !file.fileType().isBlank()) {
-            try {
-                mediaType = MediaType.parseMediaType(file.fileType());
-            } catch (IllegalArgumentException ignored) {
-                // fileType beklenmeyen bir formatta ise octet-stream'e düş
-            }
-        }
-
-        return ResponseEntity.ok()
-                .contentType(mediaType)
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        ContentDisposition.inline().filename(file.fileName()).build().toString())
-                .header(HttpHeaders.CACHE_CONTROL, "private, max-age=3600")
-                .body(file.fileData());
+        return publicProjeService.dosyaIndir(apiKey, projeId, dosyaId);
     }
 
     @Operation(summary = "API key ile şirketin hakkımızda içeriğini (misyon/vizyon/değerler/neden biz/ekip) getirir")
@@ -98,23 +79,7 @@ public class PublicApiController {
     public ResponseEntity<byte[]> duyuruGorseliGetir(
             @RequestHeader("X-API-Key") String apiKey,
             @PathVariable Long duyuruId) {
-        PublicSiteService.DuyuruGorsel gorsel = publicSiteService.duyuruGorseliGetir(apiKey, duyuruId);
-
-        MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
-        if (gorsel.fileType() != null && !gorsel.fileType().isBlank()) {
-            try {
-                mediaType = MediaType.parseMediaType(gorsel.fileType());
-            } catch (IllegalArgumentException ignored) {
-                // fileType beklenmeyen bir formatta ise octet-stream'e düş
-            }
-        }
-
-        return ResponseEntity.ok()
-                .contentType(mediaType)
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        ContentDisposition.inline().filename(gorsel.fileName()).build().toString())
-                .header(HttpHeaders.CACHE_CONTROL, "private, max-age=3600")
-                .body(gorsel.fileData());
+        return publicSiteService.duyuruGorseliGetir(apiKey, duyuruId);
     }
 
     @Operation(summary = "API key ile ziyaretçinin iletişim formu mesajını kaydeder")

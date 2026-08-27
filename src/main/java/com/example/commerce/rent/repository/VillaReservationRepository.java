@@ -30,5 +30,13 @@ public interface VillaReservationRepository extends JpaRepository<VillaReservati
             "AND r.checkIn < :end AND r.checkOut > :start")
     List<VillaReservation> findActiveOverlapping(@Param("villa") Villa villa, @Param("start") LocalDate start, @Param("end") LocalDate end);
 
+    /** Şirketin tüm villaları için, tarih aralığını dolduran aktif kaydı olan villa id'leri. */
+    @Query("SELECT DISTINCT r.villa.id FROM VillaReservation r WHERE r.villa.company = :company AND r.deleted = false " +
+            "AND (r.status = com.example.commerce.rent.enums.ReservationStatus.CONFIRMED " +
+            "     OR (r.status = com.example.commerce.rent.enums.ReservationStatus.PENDING " +
+            "         AND (r.holdExpiresAt IS NULL OR r.holdExpiresAt > CURRENT_TIMESTAMP))) " +
+            "AND r.checkIn < :end AND r.checkOut > :start")
+    List<Long> findVillaIdsWithActiveOverlap(@Param("company") Company company, @Param("start") LocalDate start, @Param("end") LocalDate end);
+
     List<VillaReservation> findByStatusAndHoldExpiresAtBefore(ReservationStatus status, LocalDateTime moment);
 }

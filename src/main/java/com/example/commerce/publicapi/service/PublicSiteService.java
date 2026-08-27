@@ -12,9 +12,12 @@ import com.example.commerce.publicapi.dto.*;
 import com.example.commerce.tenant.entity.Company;
 import com.example.commerce.tenant.repository.CompanyRepository;
 import com.example.commerce.tenant.service.ApiKeyService;
+import com.example.commerce.util.FileResponseUtil;
+import com.example.commerce.whatsapp.service.WhatsAppService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -37,6 +40,7 @@ public class PublicSiteService {
     private final CompanyContactInfoRepository companyContactInfoRepository;
     private final AnnouncementRepository announcementRepository;
     private final ContactMessageRepository contactMessageRepository;
+    private final WhatsAppService whatsAppService;
 
     private Company getCompanyByApiKey(String apiKey) {
         return companyRepository.findByApiKeyHashAndActiveTrue(apiKeyService.hash(apiKey))
@@ -155,10 +159,8 @@ public class PublicSiteService {
         return responseDTO;
     }
 
-    public record DuyuruGorsel(String fileName, String fileType, byte[] fileData) {}
-
     @Transactional
-    public DuyuruGorsel duyuruGorseliGetir(String apiKey, Long duyuruId) {
+    public ResponseEntity<byte[]> duyuruGorseliGetir(String apiKey, Long duyuruId) {
         Company company = getCompanyByApiKey(apiKey);
 
         Announcement announcement = announcementRepository.findByIdAndCompanyAndDeletedFalse(duyuruId, company)
@@ -168,7 +170,8 @@ public class PublicSiteService {
             throw new ResourceNotFoundException("duyuru.gorsel.bulunamadi", "Duyuruya ait görsel bulunamadı");
         }
 
-        return new DuyuruGorsel(announcement.getImageFileName(), announcement.getImageFileType(), announcement.getImageData());
+        return FileResponseUtil.inline(announcement.getImageFileName(), announcement.getImageFileType(),
+                announcement.getImageData(), "private, max-age=3600");
     }
 
     @Transactional
@@ -187,7 +190,24 @@ public class PublicSiteService {
         contactMessageRepository.save(message);
         log.info("Yeni iletişim formu mesajı alındı: company={}", company.getId());
 
+        companyContactInfoRepository.findByCompany(company).ifPresent(contactInfo -> {
+            String text = String.format(
+                    "*📩 Yeni İletişim Formu Mesajı*\n\n" +
+                            "*Ad Soyad:* %s\n" +
+                            "*E-posta:* %s\n" +
+                            "*Telefon:* %s\n" +
+                            "*Konu:* %s\n" +
+                            "*Mesaj:* %s",
+                    request.getFullName(), request.getEmail(), nz(request.getPhone()),
+                    nz(request.getSubject()), request.getMessage());
+            whatsAppService.sendMessage(contactInfo.getWhatsappNumber(), contactInfo.getWhatsappApiKey(), text);
+        });
+
         return new PublicIletisimFormuResponseDTO();
+    }
+
+    private static String nz(String value) {
+        return (value == null || value.isBlank()) ? "-" : value;
     }
 
     private void validateIletisimFormuRequest(PublicIletisimFormuRequestDTO request) {

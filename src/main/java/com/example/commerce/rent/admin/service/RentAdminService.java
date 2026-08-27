@@ -1,6 +1,7 @@
 package com.example.commerce.rent.admin.service;
 
 import com.example.commerce.rent.admin.dto.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public interface RentAdminService {
     // --- Galeri ---
     RentAckResponseDTO gorselleriEkle(Long villaId, List<MultipartFile> images);
     RentAckResponseDTO gorselSil(Long villaId, Long imageId);
-    VillaGorsel gorselGetir(Long villaId, Long imageId);
+    ResponseEntity<byte[]> gorselGetir(Long villaId, Long imageId);
 
     // --- Fiyat istisnaları ---
     FiyatIstisnalariListeleResponseDTO fiyatIstisnalariniListele(Long villaId);
@@ -33,6 +34,4 @@ public interface RentAdminService {
     RentIdResponseDTO rezervasyonEkle(Long villaId, RezervasyonKaydetRequestDTO request);
     RentAckResponseDTO rezervasyonDurumGuncelle(Long id, RezervasyonDurumGuncelleRequestDTO request);
     RentAckResponseDTO rezervasyonHoldGuncelle(Long id, RezervasyonHoldGuncelleRequestDTO request);
-
-    record VillaGorsel(String fileName, String fileType, byte[] fileData) {}
 }

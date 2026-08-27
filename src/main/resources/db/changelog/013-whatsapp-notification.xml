@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="013-01-company-contact-info-whatsapp-apikey" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="company_contact_infos" columnName="whatsapp_api_key"/></not>
+        </preConditions>
+        <addColumn tableName="company_contact_infos">
+            <column name="whatsapp_api_key" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

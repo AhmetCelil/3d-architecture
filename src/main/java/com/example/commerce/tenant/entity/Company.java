@@ -43,7 +43,7 @@ public class Company extends BaseEntity {
     private String logoUrl;
 
     // SHA-256 hash of the raw API key. The raw key is only ever shown once,
-    // at creation/rotation time - lookups always go through the hash.
+    // at creation/rotation time - lookups always go through the hash. // for company website
     @Column(name = "api_key_hash", unique = true)
     private String apiKeyHash;
 

@@ -16,6 +16,7 @@ public class IletisimBilgileriDTO {
     private String phoneSecondary;
     private String email;
     private String whatsappNumber;
+    private String whatsappApiKey;
     private String instagramUrl;
     private String twitterUrl;
     private String facebookUrl;

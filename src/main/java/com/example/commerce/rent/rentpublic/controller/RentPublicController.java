@@ -6,9 +6,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +25,15 @@ public class RentPublicController {
         return ResponseEntity.ok(rentPublicService.villalariListele(apiKey));
     }
 
+    @Operation(summary = "Bir tarih aralığında müsait olan villaları listeler")
+    @GetMapping("/villalari-ara")
+    public ResponseEntity<PublicVillalarResponseDTO> musaitVillalariAra(
+            @RequestHeader("X-API-Key") String apiKey,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
+        return ResponseEntity.ok(rentPublicService.musaitVillalariAra(apiKey, start, end));
+    }
+
     @Operation(summary = "Bir villanın detayını getirir")
     @GetMapping("/villa/{villaId}")
     public ResponseEntity<PublicVillaDetayResponseDTO> villaDetay(
@@ -42,22 +48,7 @@ public class RentPublicController {
             @RequestHeader("X-API-Key") String apiKey,
             @PathVariable Long villaId,
             @PathVariable Long imageId) {
-        RentPublicService.VillaGorsel gorsel = rentPublicService.gorselGetir(apiKey, villaId, imageId);
-
-        MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
-        if (gorsel.fileType() != null && !gorsel.fileType().isBlank()) {
-            try {
-                mediaType = MediaType.parseMediaType(gorsel.fileType());
-            } catch (IllegalArgumentException ignored) {
-                // fileType beklenmeyen bir formatta ise octet-stream'e düş
-            }
-        }
-
-        return ResponseEntity.ok()
-                .contentType(mediaType)
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        ContentDisposition.inline().filename(gorsel.fileName()).build().toString())
-                .body(gorsel.fileData());
+        return rentPublicService.gorselGetir(apiKey, villaId, imageId);
     }
 
     @Operation(summary = "Bir tarih aralığında villanın dolu olduğu aralıkları döner")

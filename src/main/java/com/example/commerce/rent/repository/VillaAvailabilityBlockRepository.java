@@ -2,6 +2,7 @@ package com.example.commerce.rent.repository;
 
 import com.example.commerce.rent.entity.Villa;
 import com.example.commerce.rent.entity.VillaAvailabilityBlock;
+import com.example.commerce.tenant.entity.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,4 +21,9 @@ public interface VillaAvailabilityBlockRepository extends JpaRepository<VillaAva
     @Query("SELECT b FROM VillaAvailabilityBlock b WHERE b.villa = :villa AND b.deleted = false " +
             "AND b.startDate < :end AND b.endDate > :start")
     List<VillaAvailabilityBlock> findOverlapping(@Param("villa") Villa villa, @Param("start") LocalDate start, @Param("end") LocalDate end);
+
+    /** Şirketin tüm villaları için, tarih aralığını dolduran manuel blok olan villa id'leri. */
+    @Query("SELECT DISTINCT b.villa.id FROM VillaAvailabilityBlock b WHERE b.villa.company = :company AND b.deleted = false " +
+            "AND b.startDate < :end AND b.endDate > :start")
+    List<Long> findVillaIdsWithOverlap(@Param("company") Company company, @Param("start") LocalDate start, @Param("end") LocalDate end);
 }

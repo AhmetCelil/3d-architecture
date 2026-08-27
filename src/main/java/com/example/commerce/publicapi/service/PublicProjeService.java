@@ -17,11 +17,13 @@ import com.example.commerce.schedule.repository.ProjectTaskRepository;
 import com.example.commerce.tenant.entity.Company;
 import com.example.commerce.tenant.repository.CompanyRepository;
 import com.example.commerce.tenant.service.ApiKeyService;
+import com.example.commerce.util.FileResponseUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -87,10 +89,8 @@ public class PublicProjeService {
         return responseDTO;
     }
 
-    public record DownloadableFile(String fileName, String fileType, byte[] fileData) {}
-
     @Transactional
-    public DownloadableFile dosyaIndir(String apiKey, Long projeId, Long dosyaId) {
+    public ResponseEntity<byte[]> dosyaIndir(String apiKey, Long projeId, Long dosyaId) {
         Company company = getCompanyByApiKey(apiKey);
 
         CompanyProject project = projectRepository.findByIdAndCompanyAndDeletedFalse(projeId, company)
@@ -105,7 +105,7 @@ public class PublicProjeService {
             throw new BusinessServiceException("DOSYA_COK_BUYUK", "Dosya bu uç nokta üzerinden indirilemeyecek kadar büyük");
         }
 
-        return new DownloadableFile(file.getFileName(), file.getFileType(), file.getFileData());
+        return FileResponseUtil.inline(file.getFileName(), file.getFileType(), file.getFileData(), "private, max-age=3600");
     }
 
     // Helpers

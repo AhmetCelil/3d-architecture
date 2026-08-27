@@ -387,6 +387,7 @@ public class SirketIcerikServiceImpl implements SirketIcerikService {
         contactInfo.setPhoneSecondary(request.getPhoneSecondary());
         contactInfo.setEmail(request.getEmail());
         contactInfo.setWhatsappNumber(request.getWhatsappNumber());
+        contactInfo.setWhatsappApiKey(request.getWhatsappApiKey());
         contactInfo.setInstagramUrl(request.getInstagramUrl());
         contactInfo.setTwitterUrl(request.getTwitterUrl());
         contactInfo.setFacebookUrl(request.getFacebookUrl());
@@ -428,6 +429,7 @@ public class SirketIcerikServiceImpl implements SirketIcerikService {
                 .phoneSecondary(contactInfo.getPhoneSecondary())
                 .email(contactInfo.getEmail())
                 .whatsappNumber(contactInfo.getWhatsappNumber())
+                .whatsappApiKey(contactInfo.getWhatsappApiKey())
                 .instagramUrl(contactInfo.getInstagramUrl())
                 .twitterUrl(contactInfo.getTwitterUrl())
                 .facebookUrl(contactInfo.getFacebookUrl())

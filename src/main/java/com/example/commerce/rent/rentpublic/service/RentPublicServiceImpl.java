@@ -1,11 +1,13 @@
 package com.example.commerce.rent.rentpublic.service;
 
+import com.example.commerce.adminpanel.repository.CompanyContactInfoRepository;
 import com.example.commerce.altcha.AltchaService;
 import com.example.commerce.basedtos.AppMessageType;
 import com.example.commerce.exception.BusinessServiceException;
 import com.example.commerce.exception.ResourceNotFoundException;
 import com.example.commerce.exception.ValidationServiceException;
 import com.example.commerce.mail.service.MailService;
+import com.example.commerce.whatsapp.service.WhatsAppService;
 import com.example.commerce.rent.entity.RentSettings;
 import com.example.commerce.rent.entity.Villa;
 import com.example.commerce.rent.entity.VillaImage;
@@ -21,8 +23,10 @@ import com.example.commerce.tenant.entity.Company;
 import com.example.commerce.tenant.repository.CompanyRepository;
 import com.example.commerce.tenant.service.ApiKeyService;
 import com.example.commerce.util.AppMessageUtil;
+import com.example.commerce.util.FileResponseUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +47,8 @@ public class RentPublicServiceImpl implements RentPublicService {
     private final ApiKeyService apiKeyService;
     private final AltchaService altchaService;
     private final MailService mailService;
+    private final WhatsAppService whatsAppService;
+    private final CompanyContactInfoRepository companyContactInfoRepository;
     private final RentCalendarService calendarService;
 
     @Override
@@ -52,6 +58,18 @@ public class RentPublicServiceImpl implements RentPublicService {
 
         PublicVillalarResponseDTO responseDTO = new PublicVillalarResponseDTO();
         responseDTO.setData(villaRepository.findByCompanyAndDeletedFalseAndActiveTrueOrderByNameAsc(company).stream()
+                .map(this::convertToPublicVillaDTO).toList());
+        return responseDTO;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PublicVillalarResponseDTO musaitVillalariAra(String apiKey, LocalDate start, LocalDate end) {
+        Company company = requireModuleEnabled(apiKey);
+        validateDateRange(start, end);
+
+        PublicVillalarResponseDTO responseDTO = new PublicVillalarResponseDTO();
+        responseDTO.setData(calendarService.availableVillas(company, start, end).stream()
                 .map(this::convertToPublicVillaDTO).toList());
         return responseDTO;
     }
@@ -69,13 +87,13 @@ public class RentPublicServiceImpl implements RentPublicService {
 
     @Override
     @Transactional(readOnly = true)
-    public VillaGorsel gorselGetir(String apiKey, Long villaId, Long imageId) {
+    public ResponseEntity<byte[]> gorselGetir(String apiKey, Long villaId, Long imageId) {
         Company company = requireModuleEnabled(apiKey);
         Villa villa = findVillaOrThrow(villaId, company);
         VillaImage image = villaImageRepository.findByIdAndVillaAndDeletedFalse(imageId, villa)
                 .orElseThrow(() -> new ResourceNotFoundException("villa.gorsel.bulunamadi", "Villa görseli bulunamadı"));
 
-        return new VillaGorsel(image.getFileName(), image.getFileType(), image.getFileData());
+        return FileResponseUtil.inline(image.getFileName(), image.getFileType(), image.getFileData());
     }
 
     @Override
@@ -222,6 +240,24 @@ public class RentPublicServiceImpl implements RentPublicService {
                         "Ödeme ve onay süreci için sizinle iletişime geçilecektir.</p></body></html>",
                 villa.getName(), reservation.getCheckIn(), reservation.getCheckOut());
         mailService.sendHtmlMail(reservation.getGuestEmail(), reservation.getGuestName(), "Rezervasyon Talebiniz Alındı", guestHtml);
+
+        companyContactInfoRepository.findByCompany(company).ifPresent(contactInfo -> {
+            String text = String.format(
+                    "*🏡 Yeni Rezervasyon Talebi*\n\n" +
+                            "*Villa:* %s\n" +
+                            "*Misafir:* %s %s\n" +
+                            "*Tarih:* %s - %s\n" +
+                            "*Telefon:* %s\n" +
+                            "*Not:* %s",
+                    villa.getName(), reservation.getGuestName(), nz(reservation.getGuestSurname()),
+                    reservation.getCheckIn(), reservation.getCheckOut(),
+                    nz(reservation.getGuestPhone()), nz(reservation.getMessage()));
+            whatsAppService.sendMessage(contactInfo.getWhatsappNumber(), contactInfo.getWhatsappApiKey(), text);
+        });
+    }
+
+    private static String nz(String value) {
+        return (value == null || value.isBlank()) ? "-" : value;
     }
 
     private PublicVillaDTO convertToPublicVillaDTO(Villa villa) {

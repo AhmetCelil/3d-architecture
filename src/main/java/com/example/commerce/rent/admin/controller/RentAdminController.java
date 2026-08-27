@@ -5,8 +5,6 @@ import com.example.commerce.rent.admin.service.RentAdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -69,22 +67,7 @@ public class RentAdminController {
     @Operation(summary = "Villaya ait görseli döndürür")
     @GetMapping("/villa/{villaId}/gorsel/{imageId}")
     public ResponseEntity<byte[]> gorselGetir(@PathVariable Long villaId, @PathVariable Long imageId) {
-        RentAdminService.VillaGorsel gorsel = rentAdminService.gorselGetir(villaId, imageId);
-
-        MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
-        if (gorsel.fileType() != null && !gorsel.fileType().isBlank()) {
-            try {
-                mediaType = MediaType.parseMediaType(gorsel.fileType());
-            } catch (IllegalArgumentException ignored) {
-                // fileType beklenmeyen bir formatta ise octet-stream'e düş
-            }
-        }
-
-        return ResponseEntity.ok()
-                .contentType(mediaType)
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        ContentDisposition.inline().filename(gorsel.fileName()).build().toString())
-                .body(gorsel.fileData());
+        return rentAdminService.gorselGetir(villaId, imageId);
     }
 
     // --- Fiyat istisnaları ---

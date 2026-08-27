@@ -12,8 +12,10 @@ import com.example.commerce.rent.repository.*;
 import com.example.commerce.rent.service.RentCalendarService;
 import com.example.commerce.tenant.entity.Company;
 import com.example.commerce.util.AppMessageUtil;
+import com.example.commerce.util.FileResponseUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -164,13 +166,13 @@ public class RentAdminServiceImpl implements RentAdminService {
 
     @Override
     @Transactional(readOnly = true)
-    public VillaGorsel gorselGetir(Long villaId, Long imageId) {
+    public ResponseEntity<byte[]> gorselGetir(Long villaId, Long imageId) {
         Company company = requireModuleEnabled();
         Villa villa = findVillaOrThrow(villaId, company);
         VillaImage image = villaImageRepository.findByIdAndVillaAndDeletedFalse(imageId, villa)
                 .orElseThrow(() -> new ResourceNotFoundException("villa.gorsel.bulunamadi", "Villa görseli bulunamadı"));
 
-        return new VillaGorsel(image.getFileName(), image.getFileType(), image.getFileData());
+        return FileResponseUtil.inline(image.getFileName(), image.getFileType(), image.getFileData());
     }
 
     // ---------------------------------------------------------------------

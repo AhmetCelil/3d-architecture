@@ -39,6 +39,9 @@ public class CompanyContactInfo extends BaseEntity {
     @Column(name = "whatsapp_number")
     private String whatsappNumber;
 
+    @Column(name = "whatsapp_api_key")
+    private String whatsappApiKey;
+
     @Column(name = "instagram_url")
     private String instagramUrl;
 

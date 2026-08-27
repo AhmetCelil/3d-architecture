@@ -5,14 +5,18 @@ import com.example.commerce.rent.entity.Villa;
 import com.example.commerce.rent.entity.VillaPriceOverride;
 import com.example.commerce.rent.repository.VillaAvailabilityBlockRepository;
 import com.example.commerce.rent.repository.VillaPriceOverrideRepository;
+import com.example.commerce.rent.repository.VillaRepository;
 import com.example.commerce.rent.repository.VillaReservationRepository;
+import com.example.commerce.tenant.entity.Company;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Müsaitlik ve fiyat hesabı hem admin hem public taraf için ortak: bir tarih
@@ -26,6 +30,7 @@ public class RentCalendarService {
     private final VillaReservationRepository villaReservationRepository;
     private final VillaAvailabilityBlockRepository villaAvailabilityBlockRepository;
     private final VillaPriceOverrideRepository villaPriceOverrideRepository;
+    private final VillaRepository villaRepository;
 
     public boolean isAvailable(Villa villa, LocalDate checkIn, LocalDate checkOut) {
         return villaReservationRepository.findActiveOverlapping(villa, checkIn, checkOut).isEmpty()
@@ -36,6 +41,16 @@ public class RentCalendarService {
         if (!isAvailable(villa, checkIn, checkOut)) {
             throw new ValidationServiceException("rent.tarih.musait-degil", "Seçilen tarihler için villa müsait değildir");
         }
+    }
+
+    /** [start, end) aralığında aktif olan (silinmemiş, active) villalar arasından, o aralıkta tamamen müsait olanları döner. */
+    public List<Villa> availableVillas(Company company, LocalDate start, LocalDate end) {
+        Set<Long> unavailableVillaIds = new HashSet<>(villaReservationRepository.findVillaIdsWithActiveOverlap(company, start, end));
+        unavailableVillaIds.addAll(villaAvailabilityBlockRepository.findVillaIdsWithOverlap(company, start, end));
+
+        return villaRepository.findByCompanyAndDeletedFalseAndActiveTrueOrderByNameAsc(company).stream()
+                .filter(villa -> !unavailableVillaIds.contains(villa.getId()))
+                .toList();
     }
 
     /** [start, end) aralığında dolu olan tarih aralıklarını (rezervasyon + manuel blok birleşimi) döner. */
