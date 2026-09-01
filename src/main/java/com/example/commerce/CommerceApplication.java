@@ -12,6 +12,16 @@ import org.springframework.core.env.PropertySource;
 public class CommerceApplication {
 
 	public static void main(String[] args) {
+		// TEMP DEBUG: application-staging.yml runtime classpath'te gerçekten var mı,
+		// ve SPRING_CONFIG_* gibi bir env var config lookup'ını saptırıyor mu.
+		ClassLoader cl = CommerceApplication.class.getClassLoader();
+		System.out.println("[ENV-DEBUG3] getResource(application-staging.yml)=" + cl.getResource("application-staging.yml"));
+		System.out.println("[ENV-DEBUG3] getResource(application.yml)=" + cl.getResource("application.yml"));
+		for (String key : new String[]{"SPRING_CONFIG_LOCATION", "SPRING_CONFIG_NAME", "SPRING_CONFIG_ADDITIONAL_LOCATION", "JAVA_TOOL_OPTIONS", "JAVA_OPTS"}) {
+			System.out.println("[ENV-DEBUG3] " + key + "=" + System.getenv(key));
+		}
+		System.out.println("[ENV-DEBUG3] all env var keys: " + String.join(", ", System.getenv().keySet()));
+
 		SpringApplication app = new SpringApplication(CommerceApplication.class);
 		// TEMP DEBUG: Spring'in kendi Environment'ının spring.datasource.url'i gerçekten
 		// çözüp çözemediğini teşhis etmek için. Değerleri değil, sadece durum bilgisini loglar.
