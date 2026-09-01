@@ -73,6 +73,10 @@ app:
       # Staging'i test ederken hangi frontend'lerden istek gelecekse buraya ekle
       - "http://localhost:*"
       - "http://127.0.0.1:*"
+      - "https://construction-portfolio-vert.vercel.app"
+      - "https://construction-postfolio2.vercel.app"
+      # Vercel preview deploy'ları (PR/branch başına farklı URL üretiyor)
+      - "https://*.vercel.app"
   # Arama motorları staging'i indekslemesin (FE dev + demo erişimi engellenmesin diye
   # blanket basic auth yerine sadece bu)
   robots:
