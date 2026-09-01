@@ -27,3 +27,5 @@ services:
         sync: false
       - key: RECAPTCHA_SECRET_KEY
         sync: false
+      - key: STAGING_KEEP_ALIVE_API_KEY
+        sync: false

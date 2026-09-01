@@ -81,6 +81,11 @@ app:
   # blanket basic auth yerine sadece bu)
   robots:
     no-index: true
+  # Render (15 dk) ve Neon (5 dk) free plan uykuya yatmasın diye kendi kendine ping atar
+  keep-alive:
+    enabled: true
+    url: https://commerce-backend-staging.onrender.com/api/public/anasayfa
+    api-key: ${STAGING_KEEP_ALIVE_API_KEY:}
 
 mail:
   brevo:
