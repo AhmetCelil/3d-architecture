@@ -14,4 +14,8 @@ public interface CompanyMembershipRepository extends JpaRepository<CompanyMember
     Optional<CompanyMembership> findByUserAndCompany(User user, Company company);
 
     Optional<CompanyMembership> findFirstByUserAndDeletedFalseOrderByIdAsc(User user);
+
+    List<CompanyMembership> findByCompanyAndDeletedFalse(Company company);
+
+    long countByCompanyAndDeletedFalse(Company company);
 }

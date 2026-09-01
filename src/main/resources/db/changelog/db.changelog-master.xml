@@ -18,5 +18,6 @@
     <include file="db/changelog/011-site-content.xml" relativeToChangelogFile="false"/>
     <include file="db/changelog/012-rent-module.xml" relativeToChangelogFile="false"/>
     <include file="db/changelog/013-whatsapp-notification.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/014-company-documents.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

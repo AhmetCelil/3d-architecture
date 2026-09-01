@@ -34,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private static final String MSG_SIFRE_YANLIS = "user.login.invalid.password";
     private static final String MSG_SIFRE_YA_DA_EMAIL_HATALI = "user.login.invalid.credentials";
     private static final String MSG_SIFRE_UZUNLUK_HATASI = "user.password.length.invalid";
+    private static final String MSG_ROL_IZIN_YOK = "user.register.role.forbidden";
     private static final String MSG_EMAIL_BOS = "user.email.empty";
     private static final String MSG_SIFRE_BOS = "user.password.empty";
     private static final String MSG_LOGIN_BEKLENMEYEN_HATA = "user.login.unexpected.error";
@@ -58,6 +59,12 @@ public class AuthServiceImpl implements AuthService {
 
             if (requestDTO.getPassword().length() < 4 || requestDTO.getPassword().length() > 40) {
                 throw new ValidationServiceException(MSG_SIFRE_UZUNLUK_HATASI, "Şifre uzunluğu 4 ile 40 karakter arasında olmalıdır");
+            }
+
+            // Public register üzerinden platform-geneli ADMIN yetkisi verilemez; ADMIN hesapları
+            // sadece elle (DB) ya da mevcut bir ADMIN üzerinden oluşturulabilir.
+            if (requestDTO.getRole() == Role.ADMIN) {
+                throw new ValidationServiceException(MSG_ROL_IZIN_YOK, "Bu rol ile kayıt yapılamaz");
             }
 
             User user = User.builder()
