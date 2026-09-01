@@ -36,10 +36,15 @@ out/
 ### VS Code ###
 .vscode/
 
+### Neon CLI (npm packages for neon.ts) ###
+node_modules/
+
 ### Secrets ###
 src/main/resources/application-local.yml
 src/main/resources/application-docker.yml
 src/main/resources/application-prod.yml
-src/main/resources/application-staging.yml
 src/main/resources/application.yml
 .env
+.env.staging
+.neon
+.env.local

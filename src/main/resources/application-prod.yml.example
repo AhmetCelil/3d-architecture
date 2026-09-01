@@ -53,6 +53,13 @@ logging:
     org.hibernate.SQL: WARN
     org.springframework.security: WARN
 
+# ===== SWAGGER (public deploy'da kapalı, URL dışarıdan erişilebilir olmasın) =====
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
 # ===== AWS S3 CONFIGURATION (env var zorunlu, default yok) =====
 aws:
   s3:

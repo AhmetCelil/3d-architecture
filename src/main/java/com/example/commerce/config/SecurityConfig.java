@@ -1,6 +1,7 @@
 package com.example.commerce.config;
 
 import com.example.commerce.security.JwtFilter;
+import com.example.commerce.security.StagingBasicAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +26,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
+    private final StagingBasicAuthFilter stagingBasicAuthFilter;
     private final CorsProperties corsProperties;
 
     @Bean
@@ -36,9 +38,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("api/auth/**").permitAll()
-                        .requestMatchers("api/admin-profil/**").permitAll()
-                        .requestMatchers("/api/s3/**").permitAll()
-                        .requestMatchers("/api/user/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
@@ -48,6 +47,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(stagingBasicAuthFilter, JwtFilter.class)
                 .build();
     }
 

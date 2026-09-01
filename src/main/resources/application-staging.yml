@@ -48,6 +48,13 @@ logging:
   level:
     com.example.commerce: DEBUG
 
+# ===== SWAGGER (public deploy'da kapalı, URL dışarıdan erişilebilir olmasın) =====
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
 # ===== AWS S3 CONFIGURATION =====
 aws:
   s3:
