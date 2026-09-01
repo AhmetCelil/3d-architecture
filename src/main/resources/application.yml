@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    group:
+      default:
+        - local
+
+app:
+  rate-limit:
+    rent-and-public-api:
+      requests-per-hour: 250
+    iletisim-formu:
+      requests-per-day: 4

@@ -43,7 +43,6 @@ node_modules/
 src/main/resources/application-local.yml
 src/main/resources/application-docker.yml
 src/main/resources/application-prod.yml
-src/main/resources/application.yml
 .env
 .env.staging
 .neon
