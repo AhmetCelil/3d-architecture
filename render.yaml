@@ -27,7 +27,3 @@ services:
         sync: false
       - key: RECAPTCHA_SECRET_KEY
         sync: false
-      - key: STAGING_BASIC_USERNAME
-        sync: false
-      - key: STAGING_BASIC_PASSWORD
-        sync: false

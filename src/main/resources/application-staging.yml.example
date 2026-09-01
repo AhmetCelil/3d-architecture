@@ -66,11 +66,10 @@ app:
       # Staging'i test ederken hangi frontend'lerden istek gelecekse buraya ekle
       - "http://localhost:*"
       - "http://127.0.0.1:*"
-  # Tüm staging'i kapıda karşılayan blanket basic auth (FE ekibi dışında kimse göremesin)
-  basic-auth:
-    enabled: true
-    username: ${STAGING_BASIC_USERNAME}
-    password: ${STAGING_BASIC_PASSWORD}
+  # Arama motorları staging'i indekslemesin (FE dev + demo erişimi engellenmesin diye
+  # blanket basic auth yerine sadece bu)
+  robots:
+    no-index: true
 
 mail:
   brevo:
