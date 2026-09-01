@@ -1,0 +1,87 @@
+spring:
+  # ===== JACKSON =====
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false
+    mapper:
+      accept-case-insensitive-enums: true
+
+  # ===== LIQUIBASE =====
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+  # ===== DATABASE CONFIGURATION (env var zorunlu, default yok) =====
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  # ===== JPA / HIBERNATE =====
+  jpa:
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+
+  # ===== MULTIPART =====
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+
+# ===== SERVER CONFIGURATION =====
+server:
+  port: 8080
+  forward-headers-strategy: framework
+  tomcat:
+    max-http-form-post-size: 209715200  # 200MB
+    max-parameter-count: 20000
+    max-http-header-size: 8KB
+    threads:
+      max: 200
+      min-spare: 10
+
+# ===== LOGGING (prod'da DEBUG/TRACE gürültüsü yok) =====
+logging:
+  level:
+    com.example.commerce: INFO
+    org.hibernate.SQL: WARN
+    org.springframework.security: WARN
+
+# ===== AWS S3 CONFIGURATION (env var zorunlu, default yok) =====
+aws:
+  s3:
+    accessKey: ${AWS_ACCESS_KEY}
+    secretKey: ${AWS_SECRET_KEY}
+    region: ${AWS_REGION:eu-north-1}
+    bucketName: ${AWS_S3_BUCKET}
+
+# ===== APPLICATION CONFIGURATION =====
+app:
+  name: Unity S3 File Server
+  version: 1.0.0
+  environment: prod
+  cors:
+    allowed-origins:
+      - "https://construction-portfolio-vert.vercel.app"
+      - "https://construction-postfolio2.vercel.app"
+  rate-limit:
+    rent-and-public-api:
+      requests-per-hour: 250
+    iletisim-formu:
+      requests-per-day: 4
+
+mail:
+  brevo:
+    api-key: ${BREVO_API_KEY}
+    sender: ${MAIL_SENDER}
+
+recaptcha:
+  secret-key: ${RECAPTCHA_SECRET_KEY}
+  verify-url: https://www.google.com/recaptcha/api/siteverify
+  min-score: 0.5

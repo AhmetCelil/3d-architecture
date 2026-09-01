@@ -20,7 +20,6 @@ import com.example.commerce.rent.repository.VillaReservationRepository;
 import com.example.commerce.rent.rentpublic.dto.*;
 import com.example.commerce.rent.service.RentCalendarService;
 import com.example.commerce.tenant.entity.Company;
-import com.example.commerce.tenant.repository.CompanyRepository;
 import com.example.commerce.tenant.service.ApiKeyService;
 import com.example.commerce.util.AppMessageUtil;
 import com.example.commerce.util.FileResponseUtil;
@@ -43,7 +42,6 @@ public class RentPublicServiceImpl implements RentPublicService {
     private final VillaImageRepository villaImageRepository;
     private final VillaReservationRepository villaReservationRepository;
     private final RentSettingsRepository rentSettingsRepository;
-    private final CompanyRepository companyRepository;
     private final ApiKeyService apiKeyService;
     private final AltchaService altchaService;
     private final MailService mailService;
@@ -66,7 +64,7 @@ public class RentPublicServiceImpl implements RentPublicService {
     @Transactional(readOnly = true)
     public PublicVillalarResponseDTO musaitVillalariAra(String apiKey, LocalDate start, LocalDate end) {
         Company company = requireModuleEnabled(apiKey);
-        validateDateRange(start, end);
+        calendarService.validateDateRange(start, end);
 
         PublicVillalarResponseDTO responseDTO = new PublicVillalarResponseDTO();
         responseDTO.setData(calendarService.availableVillas(company, start, end).stream()
@@ -101,7 +99,7 @@ public class RentPublicServiceImpl implements RentPublicService {
     public PublicMusaitlikResponseDTO musaitlik(String apiKey, Long villaId, LocalDate start, LocalDate end) {
         Company company = requireModuleEnabled(apiKey);
         Villa villa = findVillaOrThrow(villaId, company);
-        validateDateRange(start, end);
+        calendarService.validateDateRange(start, end);
 
         PublicMusaitlikResponseDTO responseDTO = new PublicMusaitlikResponseDTO();
         responseDTO.setDoluAraliklar(calendarService.blockedRanges(villa, start, end).stream()
@@ -115,7 +113,7 @@ public class RentPublicServiceImpl implements RentPublicService {
     public PublicVillaFiyatResponseDTO fiyat(String apiKey, Long villaId, LocalDate start, LocalDate end) {
         Company company = requireModuleEnabled(apiKey);
         Villa villa = findVillaOrThrow(villaId, company);
-        validateDateRange(start, end);
+        calendarService.validateDateRange(start, end);
 
         PublicVillaFiyatResponseDTO responseDTO = new PublicVillaFiyatResponseDTO();
         responseDTO.setPriceVisible(villa.isPriceVisible() && villa.getPrice() != null);
@@ -183,8 +181,7 @@ public class RentPublicServiceImpl implements RentPublicService {
     // ---------------------------------------------------------------------
 
     private Company requireModuleEnabled(String apiKey) {
-        Company company = companyRepository.findByApiKeyHashAndActiveTrue(apiKeyService.hash(apiKey))
-                .orElseThrow(() -> new BusinessServiceException("INVALID_API_KEY", "Geçersiz API Key"));
+        Company company = apiKeyService.resolveCompany(apiKey);
 
         boolean enabled = rentSettingsRepository.findByCompany(company)
                 .map(RentSettings::isEnabled)
@@ -200,15 +197,6 @@ public class RentPublicServiceImpl implements RentPublicService {
                 .orElseThrow(() -> new ResourceNotFoundException("villa.bulunamadi", "Villa bulunamadı"));
     }
 
-    private void validateDateRange(LocalDate start, LocalDate end) {
-        if (start == null || end == null) {
-            throw new ValidationServiceException("tarih.zorunlu", "Başlangıç ve bitiş tarihi zorunludur");
-        }
-        if (!end.isAfter(start)) {
-            throw new ValidationServiceException("tarih.gecersiz", "Bitiş tarihi başlangıç tarihinden sonra olmalıdır");
-        }
-    }
-
     private void validateGuestRequest(PublicVillaRezervasyonTalebiRequestDTO request) {
         if (request.getGuestName() == null || request.getGuestName().isBlank()) {
             throw new ValidationServiceException("rezervasyon.misafir.zorunlu", "Misafir adı zorunludur");
@@ -216,7 +204,7 @@ public class RentPublicServiceImpl implements RentPublicService {
         if (request.getGuestEmail() == null || request.getGuestEmail().isBlank()) {
             throw new ValidationServiceException("rezervasyon.email.zorunlu", "Misafir e-postası zorunludur");
         }
-        validateDateRange(request.getCheckIn(), request.getCheckOut());
+        calendarService.validateDateRange(request.getCheckIn(), request.getCheckOut());
         if (request.getCheckIn().isBefore(LocalDate.now())) {
             throw new ValidationServiceException("rezervasyon.tarih.gecmis", "Geçmiş bir tarih için rezervasyon oluşturulamaz");
         }

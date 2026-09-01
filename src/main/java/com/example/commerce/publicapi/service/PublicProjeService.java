@@ -15,7 +15,6 @@ import com.example.commerce.schedule.entity.ProjectTask;
 import com.example.commerce.schedule.repository.MilestoneRepository;
 import com.example.commerce.schedule.repository.ProjectTaskRepository;
 import com.example.commerce.tenant.entity.Company;
-import com.example.commerce.tenant.repository.CompanyRepository;
 import com.example.commerce.tenant.service.ApiKeyService;
 import com.example.commerce.util.FileResponseUtil;
 import jakarta.transaction.Transactional;
@@ -41,7 +40,6 @@ public class PublicProjeService {
     private static final long MAX_DOWNLOADABLE_FILE_SIZE = 50L * 1024 * 1024;
     private static final int MAX_PAGE_SIZE = 100;
 
-    private final CompanyRepository companyRepository;
     private final CompanyProjectRepository projectRepository;
     private final ApiKeyService apiKeyService;
     private final ContractRepository contractRepository;
@@ -50,8 +48,7 @@ public class PublicProjeService {
     private final SubcontractorAssignmentRepository subcontractorAssignmentRepository;
 
     private Company getCompanyByApiKey(String apiKey) {
-        return companyRepository.findByApiKeyHashAndActiveTrue(apiKeyService.hash(apiKey))
-                .orElseThrow(() -> new BusinessServiceException("INVALID_API_KEY", "Geçersiz API key"));
+        return apiKeyService.resolveCompany(apiKey);
     }
 
     @Transactional

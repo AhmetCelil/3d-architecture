@@ -1,0 +1,78 @@
+spring:
+  # ===== JACKSON =====
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false
+    mapper:
+      accept-case-insensitive-enums: true
+
+  # ===== LIQUIBASE =====
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+  # ===== DATABASE CONFIGURATION (Neon gibi bir servisin verdiği bağlantı bilgileri) =====
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  # ===== JPA / HIBERNATE =====
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+
+  # ===== MULTIPART =====
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+
+# ===== SERVER CONFIGURATION (Render, dinlenecek portu PORT env var'ı ile veriyor) =====
+server:
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+  tomcat:
+    max-http-form-post-size: 209715200  # 200MB
+    max-parameter-count: 20000
+    max-http-header-size: 8KB
+
+# ===== LOGGING =====
+logging:
+  level:
+    com.example.commerce: DEBUG
+
+# ===== AWS S3 CONFIGURATION =====
+aws:
+  s3:
+    accessKey: ${AWS_ACCESS_KEY}
+    secretKey: ${AWS_SECRET_KEY}
+    region: ${AWS_REGION:eu-north-1}
+    bucketName: ${AWS_S3_BUCKET}
+
+# ===== APPLICATION CONFIGURATION =====
+app:
+  name: Unity S3 File Server
+  version: 1.0.0
+  environment: staging
+  cors:
+    allowed-origins:
+      # Staging'i test ederken hangi frontend'lerden istek gelecekse buraya ekle
+      - "http://localhost:*"
+      - "http://127.0.0.1:*"
+
+mail:
+  brevo:
+    api-key: ${BREVO_API_KEY}
+    sender: ${MAIL_SENDER}
+
+recaptcha:
+  secret-key: ${RECAPTCHA_SECRET_KEY}
+  verify-url: https://www.google.com/recaptcha/api/siteverify
+  min-score: 0.5

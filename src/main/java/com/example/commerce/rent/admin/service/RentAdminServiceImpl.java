@@ -196,7 +196,7 @@ public class RentAdminServiceImpl implements RentAdminService {
     public RentIdResponseDTO fiyatIstisnasiEkle(Long villaId, VillaFiyatIstisnasiKaydetRequestDTO request) {
         Company company = requireModuleEnabled();
         Villa villa = findVillaOrThrow(villaId, company);
-        validateDateRange(request.getStartDate(), request.getEndDate());
+        calendarService.validateDateRange(request.getStartDate(), request.getEndDate());
         if (request.getPrice() == null) {
             throw new ValidationServiceException("fiyat.istisnasi.fiyat.zorunlu", "Fiyat zorunludur");
         }
@@ -247,7 +247,7 @@ public class RentAdminServiceImpl implements RentAdminService {
     public RentIdResponseDTO musaitlikBlokuEkle(Long villaId, MusaitlikBlokuKaydetRequestDTO request) {
         Company company = requireModuleEnabled();
         Villa villa = findVillaOrThrow(villaId, company);
-        validateDateRange(request.getStartDate(), request.getEndDate());
+        calendarService.validateDateRange(request.getStartDate(), request.getEndDate());
         validateTextLength(request.getNote(), MAX_NOTE_LENGTH, "Not");
 
         VillaAvailabilityBlock block = villaAvailabilityBlockRepository.save(VillaAvailabilityBlock.builder()
@@ -385,16 +385,7 @@ public class RentAdminServiceImpl implements RentAdminService {
         if (guestEmail == null || guestEmail.isBlank()) {
             throw new ValidationServiceException("rezervasyon.email.zorunlu", "Misafir e-postası zorunludur");
         }
-        validateDateRange(checkIn, checkOut);
-    }
-
-    private void validateDateRange(java.time.LocalDate start, java.time.LocalDate end) {
-        if (start == null || end == null) {
-            throw new ValidationServiceException("tarih.zorunlu", "Başlangıç ve bitiş tarihi zorunludur");
-        }
-        if (!end.isAfter(start)) {
-            throw new ValidationServiceException("tarih.gecersiz", "Bitiş tarihi başlangıç tarihinden sonra olmalıdır");
-        }
+        calendarService.validateDateRange(checkIn, checkOut);
     }
 
     private void validateTextLength(String value, int maxLength, String fieldLabel) {

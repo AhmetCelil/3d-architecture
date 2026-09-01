@@ -5,12 +5,10 @@ import com.example.commerce.adminpanel.entity.CompanyContactInfo;
 import com.example.commerce.adminpanel.entity.CompanyProfile;
 import com.example.commerce.adminpanel.entity.ContactMessage;
 import com.example.commerce.adminpanel.repository.*;
-import com.example.commerce.exception.BusinessServiceException;
 import com.example.commerce.exception.ResourceNotFoundException;
 import com.example.commerce.exception.ValidationServiceException;
 import com.example.commerce.publicapi.dto.*;
 import com.example.commerce.tenant.entity.Company;
-import com.example.commerce.tenant.repository.CompanyRepository;
 import com.example.commerce.tenant.service.ApiKeyService;
 import com.example.commerce.util.FileResponseUtil;
 import com.example.commerce.whatsapp.service.WhatsAppService;
@@ -31,7 +29,6 @@ public class PublicSiteService {
     private static final int MAX_FULL_NAME_LENGTH = 255;
     private static final int MAX_MESSAGE_LENGTH = 4000;
 
-    private final CompanyRepository companyRepository;
     private final ApiKeyService apiKeyService;
     private final CompanyProfileRepository companyProfileRepository;
     private final CompanyValueRepository companyValueRepository;
@@ -43,8 +40,7 @@ public class PublicSiteService {
     private final WhatsAppService whatsAppService;
 
     private Company getCompanyByApiKey(String apiKey) {
-        return companyRepository.findByApiKeyHashAndActiveTrue(apiKeyService.hash(apiKey))
-                .orElseThrow(() -> new BusinessServiceException("INVALID_API_KEY", "Geçersiz API key"));
+        return apiKeyService.resolveCompany(apiKey);
     }
 
     @Transactional

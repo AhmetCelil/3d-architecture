@@ -32,6 +32,15 @@ public class RentCalendarService {
     private final VillaPriceOverrideRepository villaPriceOverrideRepository;
     private final VillaRepository villaRepository;
 
+    public void validateDateRange(LocalDate start, LocalDate end) {
+        if (start == null || end == null) {
+            throw new ValidationServiceException("tarih.zorunlu", "Başlangıç ve bitiş tarihi zorunludur");
+        }
+        if (!end.isAfter(start)) {
+            throw new ValidationServiceException("tarih.gecersiz", "Bitiş tarihi başlangıç tarihinden sonra olmalıdır");
+        }
+    }
+
     public boolean isAvailable(Villa villa, LocalDate checkIn, LocalDate checkOut) {
         return villaReservationRepository.findActiveOverlapping(villa, checkIn, checkOut).isEmpty()
                 && villaAvailabilityBlockRepository.findOverlapping(villa, checkIn, checkOut).isEmpty();

@@ -5,7 +5,6 @@ import com.example.commerce.exception.BusinessServiceException;
 import com.example.commerce.mail.dto.MailRequestDTO;
 import com.example.commerce.mail.dto.MailResponseDTO;
 import com.example.commerce.tenant.entity.Company;
-import com.example.commerce.tenant.repository.CompanyRepository;
 import com.example.commerce.tenant.service.ApiKeyService;
 import com.example.commerce.util.AppMessageUtil;
 import com.example.commerce.altcha.AltchaService;
@@ -30,7 +29,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MailService {
 
-    private final CompanyRepository companyRepository;
     private final ApiKeyService apiKeyService;
     private final AltchaService altchaService;
 
@@ -115,8 +113,7 @@ public class MailService {
     }
 
     private Company getCompanyByApiKey(String apiKey) {
-        return companyRepository.findByApiKeyHashAndActiveTrue(apiKeyService.hash(apiKey))
-                .orElseThrow(() -> new BusinessServiceException("INVALID_API_KEY", "Geçersiz API Key"));
+        return apiKeyService.resolveCompany(apiKey);
     }
 
     /**

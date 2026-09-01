@@ -1,5 +1,9 @@
 package com.example.commerce.tenant.service;
 
+import com.example.commerce.exception.BusinessServiceException;
+import com.example.commerce.tenant.entity.Company;
+import com.example.commerce.tenant.repository.CompanyRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -9,9 +13,12 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 @Service
+@RequiredArgsConstructor
 public class ApiKeyService {
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
+    private final CompanyRepository companyRepository;
 
     /** Generates a new random raw API key. Only shown to the caller once. */
     public String generateRawKey() {
@@ -29,5 +36,11 @@ public class ApiKeyService {
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("SHA-256 not available", e);
         }
+    }
+
+    /** Ham API key'i aktif şirkete çözer; geçersizse INVALID_API_KEY fırlatır. */
+    public Company resolveCompany(String apiKey) {
+        return companyRepository.findByApiKeyHashAndActiveTrue(hash(apiKey))
+                .orElseThrow(() -> new BusinessServiceException("INVALID_API_KEY", "Geçersiz API Key"));
     }
 }

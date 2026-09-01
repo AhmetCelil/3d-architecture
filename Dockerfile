@@ -1,10 +1,14 @@
-# Dockerfile
+# ---- Build stage ----
+FROM gradle:8.14.2-jdk17 AS build
+WORKDIR /workspace
 
-# Java imajını kullan
-FROM openjdk:17-jdk-slim
+COPY settings.gradle.kts build.gradle.kts ./
+COPY src src
+RUN gradle bootJar --no-daemon -x test
 
-# Uygulama jar dosyasını konteyner içine kopyala
-COPY build/libs/commerce-0.0.1-SNAPSHOT.jar app.jar
+# ---- Runtime stage ----
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+COPY --from=build /workspace/build/libs/*.jar app.jar
 
-# Uygulamayı çalıştır
 ENTRYPOINT ["java", "-jar", "app.jar"]
