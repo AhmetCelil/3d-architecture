@@ -37,6 +37,11 @@ public class ProjectFile extends BaseEntity {
     @JoinColumn(name = "project_id", nullable = false)
     private CompanyProject project; // ← artık proje nesnesi üzerinden ilişki kuruluyor
 
+    /** Bu dosya belirli bir ünite tipine (örn. "2+1 Tip A") ait bir kat planıysa dolu olur. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unit_type_id")
+    private UnitType unitType;
+
     @Column(name = "upload_date")
     private LocalDateTime uploadDate;
 

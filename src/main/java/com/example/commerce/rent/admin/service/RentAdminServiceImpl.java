@@ -408,7 +408,7 @@ public class RentAdminServiceImpl implements RentAdminService {
     }
 
     private VillaDTO convertToVillaDTO(Villa villa) {
-        List<VillaImageDTO> images = villaImageRepository.findByVillaAndDeletedFalseOrderBySortOrderAscIdAsc(villa).stream()
+        List<VillaImageDTO> images = villaImageRepository.findMetaByVillaAndDeletedFalseOrderBySortOrderAscIdAsc(villa).stream()
                 .map(img -> VillaImageDTO.builder()
                         .id(img.getId())
                         .fileName(img.getFileName())

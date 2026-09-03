@@ -516,7 +516,7 @@ public class SirketIcerikServiceImpl implements SirketIcerikService {
     @Transactional(readOnly = true)
     public DuyurulariListeleResponseDTO duyurulariListele() {
         Company company = authenticationService.getAuthenticatedUserCompany();
-        List<Announcement> announcements = announcementRepository.findByCompanyAndDeletedFalseOrderByPriorityDescCreatedAtDesc(company);
+        List<AnnouncementRepository.AnnouncementMetaView> announcements = announcementRepository.findMetaByCompanyAndDeletedFalseOrderByPriorityDescCreatedAtDesc(company);
 
         DuyurulariListeleResponseDTO responseDTO = new DuyurulariListeleResponseDTO();
         responseDTO.setData(announcements.stream().map(this::convertToDuyuruDTO).toList());
@@ -648,13 +648,13 @@ public class SirketIcerikServiceImpl implements SirketIcerikService {
         }
     }
 
-    private DuyuruDTO convertToDuyuruDTO(Announcement announcement) {
+    private DuyuruDTO convertToDuyuruDTO(AnnouncementRepository.AnnouncementMetaView announcement) {
         return DuyuruDTO.builder()
                 .id(announcement.getId())
                 .title(announcement.getTitle())
                 .message(announcement.getMessage())
                 .announcementType(announcement.getAnnouncementType())
-                .hasImage(announcement.getImageData() != null)
+                .hasImage(announcement.getImageFileName() != null)
                 .linkUrl(announcement.getLinkUrl())
                 .buttonText(announcement.getButtonText())
                 .startDate(announcement.getStartDate())

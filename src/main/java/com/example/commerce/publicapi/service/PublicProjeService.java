@@ -4,6 +4,11 @@ import com.example.commerce.adminpanel.dto.FloorPlanRoomDetailDTO;
 import com.example.commerce.adminpanel.entity.CompanyProject;
 import com.example.commerce.adminpanel.entity.ProjectFile;
 import com.example.commerce.adminpanel.repository.CompanyProjectRepository;
+import com.example.commerce.adminpanel.repository.ProjectFileRepository;
+import com.example.commerce.adminpanel.repository.ProjectFileRepository.ProjectFileMetaView;
+import com.example.commerce.adminpanel.repository.ProjectFileRepository.RoomDetailRow;
+import com.example.commerce.adminpanel.repository.UnitTypeRepository;
+import com.example.commerce.common.cache.FileByteCache;
 import com.example.commerce.contract.entity.Contract;
 import com.example.commerce.contract.repository.ContractRepository;
 import com.example.commerce.exception.BusinessServiceException;
@@ -29,6 +34,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -41,6 +47,9 @@ public class PublicProjeService {
     private static final int MAX_PAGE_SIZE = 100;
 
     private final CompanyProjectRepository projectRepository;
+    private final ProjectFileRepository projectFileRepository;
+    private final UnitTypeRepository unitTypeRepository;
+    private final FileByteCache fileByteCache;
     private final ApiKeyService apiKeyService;
     private final ContractRepository contractRepository;
     private final MilestoneRepository milestoneRepository;
@@ -86,23 +95,24 @@ public class PublicProjeService {
         return responseDTO;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ResponseEntity<byte[]> dosyaIndir(String apiKey, Long projeId, Long dosyaId) {
         Company company = getCompanyByApiKey(apiKey);
 
         CompanyProject project = projectRepository.findByIdAndCompanyAndDeletedFalse(projeId, company)
                 .orElseThrow(() -> new BusinessServiceException("PROJE_BULUNAMADI", "Proje bulunamadı"));
 
-        ProjectFile file = project.getFiles().stream()
-                .filter(f -> f.getId().equals(dosyaId) && !f.isDeleted())
-                .findFirst()
+        ProjectFileMetaView meta = projectFileRepository.findMetaByIdAndProjectId(dosyaId, project.getId())
                 .orElseThrow(() -> new BusinessServiceException("DOSYA_BULUNAMADI", "Dosya bulunamadı"));
 
-        if (file.getFileData() != null && file.getFileData().length > MAX_DOWNLOADABLE_FILE_SIZE) {
+        if (meta.getFileSize() != null && meta.getFileSize() > MAX_DOWNLOADABLE_FILE_SIZE) {
             throw new BusinessServiceException("DOSYA_COK_BUYUK", "Dosya bu uç nokta üzerinden indirilemeyecek kadar büyük");
         }
 
-        return FileResponseUtil.inline(file.getFileName(), file.getFileType(), file.getFileData(), "private, max-age=3600");
+        byte[] data = fileByteCache.get("projectFile:" + dosyaId,
+                key -> projectFileRepository.findById(dosyaId).map(ProjectFile::getFileData).orElse(null));
+
+        return FileResponseUtil.inline(meta.getFileName(), meta.getFileType(), data, "private, max-age=3600");
     }
 
     // Helpers
@@ -118,7 +128,7 @@ public class PublicProjeService {
                 .endDate(project.getEndDate())
                 .status(project.getStatus().name())
                 .description(project.getDescription())
-                .dosyaSayisi((int) project.getFiles().stream().filter(f -> !f.isDeleted()).count())
+                .dosyaSayisi((int) projectFileRepository.countByProjectAndDeletedFalse(project))
                 .build();
     }
 
@@ -137,27 +147,58 @@ public class PublicProjeService {
                 .description(project.getDescription())
                 .technicalSpecifications(project.getTechnicalSpecifications())
                 .features(project.getFeatures())
-                .files(project.getFiles().stream()
-                        .filter(f -> !f.isDeleted())
-                        .map(f -> PublicDosyaMetaDTO.builder()
-                                .id(f.getId())
-                                .fileName(f.getFileName())
-                                .fileType(f.getFileType())
-                                .fileSize(f.getFileSize())
-                                .title(f.getTitle())
-                                .fileCategory(f.getFileCategory() != null ? f.getFileCategory().name() : null)
-                                .roomDetails(f.getRoomDetails().stream()
-                                        .map(rd -> FloorPlanRoomDetailDTO.builder()
-                                                .roomName(rd.getRoomName())
-                                                .value(rd.getValue())
-                                                .build())
-                                        .toList())
-                                .build())
-                        .toList())
+                .files(toPublicDosyaMetaDTOs(projectFileRepository.findMetaByProjectAndDeletedFalse(project)))
+                .unitTypes(buildUnitTypes(project))
                 .schedule(buildSchedule(project))
                 .team(buildTeam(project, includeSensitiveData))
                 .contracts(includeSensitiveData ? buildContracts(project) : List.of())
                 .build();
+    }
+
+    /** Dosya içeriğini (bytea) hiç DB'den çekmeden yalnızca metadata döndürür. */
+    private List<PublicDosyaMetaDTO> toPublicDosyaMetaDTOs(List<ProjectFileMetaView> views) {
+        if (views.isEmpty()) return List.of();
+
+        List<Long> fileIds = views.stream().map(ProjectFileMetaView::getId).toList();
+        Map<Long, List<FloorPlanRoomDetailDTO>> roomDetailsByFileId = projectFileRepository.findRoomDetailRows(fileIds).stream()
+                .collect(Collectors.groupingBy(RoomDetailRow::getFileId,
+                        Collectors.mapping(rd -> FloorPlanRoomDetailDTO.builder()
+                                        .roomName(rd.getRoomName())
+                                        .value(rd.getValue())
+                                        .build(),
+                                Collectors.toList())));
+
+        return views.stream()
+                .map(v -> PublicDosyaMetaDTO.builder()
+                        .id(v.getId())
+                        .fileName(v.getFileName())
+                        .fileType(v.getFileType())
+                        .fileSize(v.getFileSize())
+                        .title(v.getTitle())
+                        .fileCategory(v.getFileCategory() != null ? v.getFileCategory().name() : null)
+                        .roomDetails(roomDetailsByFileId.getOrDefault(v.getId(), List.of()))
+                        .build())
+                .toList();
+    }
+
+    private List<PublicUnitTypeDTO> buildUnitTypes(CompanyProject project) {
+        return unitTypeRepository.findByProjectAndDeletedFalse(project).stream()
+                .map(ut -> PublicUnitTypeDTO.builder()
+                        .id(ut.getId())
+                        .blockLabel(ut.getBlockLabel())
+                        .label(ut.getLabel())
+                        .area(ut.getArea())
+                        .roomCount(ut.getRoomCount())
+                        .description(ut.getDescription())
+                        .roomDetails(ut.getRoomDetails().stream()
+                                .map(rd -> FloorPlanRoomDetailDTO.builder()
+                                        .roomName(rd.getRoomName())
+                                        .value(rd.getValue())
+                                        .build())
+                                .toList())
+                        .files(toPublicDosyaMetaDTOs(projectFileRepository.findMetaByUnitTypeAndDeletedFalse(ut)))
+                        .build())
+                .toList();
     }
 
     private List<PublicScheduleItemDTO> buildSchedule(CompanyProject project) {

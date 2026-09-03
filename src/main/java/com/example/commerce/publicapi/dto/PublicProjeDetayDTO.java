@@ -25,6 +25,7 @@ public class PublicProjeDetayDTO {
     private List<String> technicalSpecifications;
     private List<String> features;
     private List<PublicDosyaMetaDTO> files;
+    private List<PublicUnitTypeDTO> unitTypes;
     private List<PublicScheduleItemDTO> schedule;
     private List<PublicTeamMemberDTO> team;
     /** Yalnızca API key ile firma erişiminde doldurulur; unique-code erişiminde her zaman boştur. */

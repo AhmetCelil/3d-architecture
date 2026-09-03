@@ -249,7 +249,7 @@ public class RentPublicServiceImpl implements RentPublicService {
     }
 
     private PublicVillaDTO convertToPublicVillaDTO(Villa villa) {
-        List<PublicVillaImageDTO> images = villaImageRepository.findByVillaAndDeletedFalseOrderBySortOrderAscIdAsc(villa).stream()
+        List<PublicVillaImageDTO> images = villaImageRepository.findMetaByVillaAndDeletedFalseOrderBySortOrderAscIdAsc(villa).stream()
                 .map(img -> PublicVillaImageDTO.builder().id(img.getId()).fileName(img.getFileName()).fileType(img.getFileType()).build())
                 .toList();
 

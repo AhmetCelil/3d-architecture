@@ -29,6 +29,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -457,26 +459,37 @@ public class ProjeAyarlariServiceImpl implements ProjeAyarlariService {
                 .description(project.getDescription())
                 .technicalSpecifications(project.getTechnicalSpecifications())
                 .features(project.getFeatures())
-                .files(project.getFiles().stream()
-                        .filter(f -> !f.isDeleted())
-                        .map(this::convertToFileMetaDTO)
-                        .toList())
+                .files(toFileMetaDTOs(fileRepository.findMetaByProjectAndDeletedFalse(project)))
                 .createdAt(project.getCreatedAt())
                 .updatedAt(project.getUpdatedAt())
                 .build();
     }
 
-    private ProjectFileMetaDTO convertToFileMetaDTO(ProjectFile file) {
-        return ProjectFileMetaDTO.builder()
-                .id(file.getId())
-                .fileName(file.getFileName())
-                .fileType(file.getFileType())
-                .fileSize(file.getFileSize())
-                .fileCategory(file.getFileCategory())
-                .title(file.getTitle())
-                .roomDetails(mapRoomDetailDTOs(file.getRoomDetails()))
-                .uploadDate(file.getUploadDate())
-                .build();
+    /** Dosya içeriğini (bytea) hiç DB'den çekmeden yalnızca metadata döndürür. */
+    private List<ProjectFileMetaDTO> toFileMetaDTOs(List<ProjectFileRepository.ProjectFileMetaView> views) {
+        if (views.isEmpty()) return List.of();
+
+        List<Long> fileIds = views.stream().map(ProjectFileRepository.ProjectFileMetaView::getId).toList();
+        Map<Long, List<FloorPlanRoomDetailDTO>> roomDetailsByFileId = fileRepository.findRoomDetailRows(fileIds).stream()
+                .collect(Collectors.groupingBy(ProjectFileRepository.RoomDetailRow::getFileId,
+                        Collectors.mapping(rd -> FloorPlanRoomDetailDTO.builder()
+                                        .roomName(rd.getRoomName())
+                                        .value(rd.getValue())
+                                        .build(),
+                                Collectors.toList())));
+
+        return views.stream()
+                .map(v -> ProjectFileMetaDTO.builder()
+                        .id(v.getId())
+                        .fileName(v.getFileName())
+                        .fileType(v.getFileType())
+                        .fileSize(v.getFileSize())
+                        .fileCategory(v.getFileCategory())
+                        .title(v.getTitle())
+                        .roomDetails(roomDetailsByFileId.getOrDefault(v.getId(), List.of()))
+                        .uploadDate(v.getUploadDate())
+                        .build())
+                .toList();
     }
 
     private ProjectFileDetailDTO convertToFileDetailDTO(ProjectFile file) {

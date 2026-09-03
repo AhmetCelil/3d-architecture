@@ -131,8 +131,8 @@ public class PublicSiteService {
         Company company = getCompanyByApiKey(apiKey);
         LocalDateTime now = LocalDateTime.now();
 
-        List<PublicDuyuruDTO> data = announcementRepository.findByCompanyAndDeletedFalseOrderByPriorityDescCreatedAtDesc(company).stream()
-                .filter(Announcement::isActive)
+        List<PublicDuyuruDTO> data = announcementRepository.findMetaByCompanyAndDeletedFalseOrderByPriorityDescCreatedAtDesc(company).stream()
+                .filter(AnnouncementRepository.AnnouncementMetaView::isActive)
                 .filter(a -> a.getStartDate() == null || !a.getStartDate().isAfter(now))
                 .filter(a -> a.getEndDate() == null || !a.getEndDate().isBefore(now))
                 .map(a -> PublicDuyuruDTO.builder()
@@ -140,7 +140,7 @@ public class PublicSiteService {
                         .title(a.getTitle())
                         .message(a.getMessage())
                         .announcementType(a.getAnnouncementType() != null ? a.getAnnouncementType().name() : null)
-                        .hasImage(a.getImageData() != null)
+                        .hasImage(a.getImageFileName() != null)
                         .linkUrl(a.getLinkUrl())
                         .buttonText(a.getButtonText())
                         .priority(a.getPriority())

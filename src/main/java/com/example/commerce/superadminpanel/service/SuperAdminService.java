@@ -3,6 +3,7 @@ package com.example.commerce.superadminpanel.service;
 import com.example.commerce.adminpanel.entity.CompanyDocument;
 import com.example.commerce.adminpanel.repository.CompanyDocumentRepository;
 import com.example.commerce.auth.entity.User;
+import com.example.commerce.common.cache.FileByteCache;
 import com.example.commerce.auth.repository.UserRepository;
 import com.example.commerce.basedtos.AppMessageType;
 import com.example.commerce.exception.BusinessServiceException;
@@ -40,6 +41,7 @@ public class SuperAdminService {
     private final RentSettingsRepository rentSettingsRepository;
     private final UserRepository userRepository;
     private final CompanyDocumentRepository companyDocumentRepository;
+    private final FileByteCache fileByteCache;
 
     // ---------------------------------------------------------------------
     // Şirketler
@@ -211,7 +213,7 @@ public class SuperAdminService {
     @Transactional(readOnly = true)
     public BelgeleriListeleResponseDTO belgeleriListele(Long companyId) {
         Company company = getCompanyOrThrow(companyId);
-        List<BelgeDTO> data = companyDocumentRepository.findByCompanyAndDeletedFalseOrderByUploadDateDesc(company).stream()
+        List<BelgeDTO> data = companyDocumentRepository.findMetaByCompanyAndDeletedFalseOrderByUploadDateDesc(company).stream()
                 .map(d -> BelgeDTO.builder()
                         .id(d.getId())
                         .title(d.getTitle())
@@ -230,9 +232,14 @@ public class SuperAdminService {
     @Transactional(readOnly = true)
     public ResponseEntity<byte[]> belgeIndir(Long companyId, Long belgeId) {
         Company company = getCompanyOrThrow(companyId);
-        CompanyDocument document = companyDocumentRepository.findByIdAndCompanyAndDeletedFalse(belgeId, company)
+        CompanyDocumentRepository.CompanyDocumentMetaView meta = companyDocumentRepository
+                .findMetaByIdAndCompanyAndDeletedFalse(belgeId, company)
                 .orElseThrow(() -> new ResourceNotFoundException("belge.bulunamadi", "Belge bulunamadı"));
-        return FileResponseUtil.inline(document.getFileName(), document.getFileType(), document.getFileData());
+
+        byte[] data = fileByteCache.get("companyDocument:" + belgeId,
+                key -> companyDocumentRepository.findById(belgeId).map(CompanyDocument::getFileData).orElse(null));
+
+        return FileResponseUtil.inline(meta.getFileName(), meta.getFileType(), data);
     }
 
     @Transactional
@@ -242,6 +249,7 @@ public class SuperAdminService {
                 .orElseThrow(() -> new ResourceNotFoundException("belge.bulunamadi", "Belge bulunamadı"));
         document.setDeleted(true);
         companyDocumentRepository.save(document);
+        fileByteCache.evict("companyDocument:" + belgeId);
 
         BelgeSilResponseDTO responseDTO = new BelgeSilResponseDTO();
         responseDTO.setMessages(List.of(

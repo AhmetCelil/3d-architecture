@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!--
+        Proje altında blok/konsept bazlı daire ünitesi tanımlamak için:
+        - unit_types: her ünite tipi (örn. "A Blok - 2+1 Bahçe Dubleks Tip A")
+        - unit_type_room_details: ünite tipine bağlı oda/alan bilgisi (mevcut
+          project_file_room_details ile aynı örüntü, room_name + detail_value)
+        - project_file.unit_type_id: bir kat planı dosyasını belirli bir ünite
+          tipine bağlamak için opsiyonel kolon
+    -->
+    <changeSet id="015-01-unit-types" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="unit_types"/></not>
+        </preConditions>
+        <createTable tableName="unit_types">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="project_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_unit_types_project" references="company_projects(id)"/>
+            </column>
+            <column name="block_label" type="varchar(255)"/>
+            <column name="label" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="area" type="double"/>
+            <column name="room_count" type="integer"/>
+            <column name="description" type="varchar(2000)"/>
+            <column name="created_by_user_id" type="bigint">
+                <constraints foreignKeyName="fk_unit_types_created_by" references="users(id)"/>
+            </column>
+            <column name="updated_by_user_id" type="bigint">
+                <constraints foreignKeyName="fk_unit_types_updated_by" references="users(id)"/>
+            </column>
+            <column name="deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="now()"/>
+            <column name="version" type="bigint" defaultValueNumeric="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="015-02-unit-type-room-details" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="unit_type_room_details"/></not>
+        </preConditions>
+        <createTable tableName="unit_type_room_details">
+            <column name="unit_type_id" type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_unit_type_room_details_unit_type" references="unit_types(id)"/>
+            </column>
+            <column name="room_name" type="varchar(255)"/>
+            <column name="detail_value" type="varchar(1000)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="015-03-project-file-unit-type" author="commerce">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="project_file" columnName="unit_type_id"/></not>
+        </preConditions>
+        <addColumn tableName="project_file">
+            <column name="unit_type_id" type="bigint">
+                <constraints foreignKeyName="fk_project_file_unit_type" references="unit_types(id)"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>
