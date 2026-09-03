@@ -30,8 +30,8 @@ public class SuperAdminController {
     // ---------------------------------------------------------------------
 
     @Operation(summary = "Tüm şirketleri sayfalı listeler (isimde arama opsiyonel)")
-    @GetMapping("/companies")
-    public ResponseEntity<SirketleriListeleResponseDTO> sirketleriListele(@ModelAttribute SirketleriListeleRequestDTO request) {
+    @PostMapping("/companies")
+    public ResponseEntity<SirketleriListeleResponseDTO> sirketleriListele(@RequestBody SirketleriListeleRequestDTO request) {
         return ResponseEntity.ok(superAdminService.sirketleriListele(request));
     }
 
@@ -53,8 +53,8 @@ public class SuperAdminController {
     // ---------------------------------------------------------------------
 
     @Operation(summary = "Tüm kullanıcıları sayfalı listeler (şirket/rol filtresi opsiyonel)")
-    @GetMapping("/users")
-    public ResponseEntity<KullanicilariListeleResponseDTO> kullanicilariListele(@ModelAttribute KullanicilariListeleRequestDTO request) {
+    @PostMapping("/users")
+    public ResponseEntity<KullanicilariListeleResponseDTO> kullanicilariListele(@RequestBody KullanicilariListeleRequestDTO request) {
         return ResponseEntity.ok(superAdminService.kullanicilariListele(request));
     }
 

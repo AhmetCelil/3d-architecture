@@ -131,8 +131,8 @@ public class SirketIcerikController {
     // --- İletişim Mesajları (gelen kutusu) ---
 
     @Operation(summary = "Ziyaretçilerden gelen iletişim formu mesajlarını sayfalı listeler")
-    @GetMapping("/iletisim-mesajlari")
-    public ResponseEntity<IletisimMesajlariListeleResponseDTO> iletisimMesajlariniListele(@ModelAttribute IletisimMesajlariListeleRequestDTO request) {
+    @PostMapping("/iletisim-mesajlari")
+    public ResponseEntity<IletisimMesajlariListeleResponseDTO> iletisimMesajlariniListele(@RequestBody IletisimMesajlariListeleRequestDTO request) {
         return ResponseEntity.ok(icerikService.iletisimMesajlariniListele(request));
     }
 

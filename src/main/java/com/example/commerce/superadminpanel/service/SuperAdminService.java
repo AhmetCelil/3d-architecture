@@ -48,7 +48,7 @@ public class SuperAdminService {
     @Transactional(readOnly = true)
     public SirketleriListeleResponseDTO sirketleriListele(SirketleriListeleRequestDTO request) {
         Pageable pageable = request.toPageable(MAX_PAGE_SIZE);
-        String search = request.getSearch();
+        String search = request.getData() != null ? request.getData().getSearch() : null;
         Page<Company> page = (search == null || search.isBlank())
                 ? companyRepository.findAll(pageable)
                 : companyRepository.findByNameContainingIgnoreCase(search, pageable);
@@ -133,7 +133,11 @@ public class SuperAdminService {
     @Transactional(readOnly = true)
     public KullanicilariListeleResponseDTO kullanicilariListele(KullanicilariListeleRequestDTO request) {
         Pageable pageable = request.toPageable(MAX_PAGE_SIZE);
-        Page<User> page = userRepository.searchForSuperAdmin(request.getCompanyId(), request.getRole(), pageable);
+        KullanicilariListeleFiltreDTO filtre = request.getData();
+        Page<User> page = userRepository.searchForSuperAdmin(
+                filtre != null ? filtre.getCompanyId() : null,
+                filtre != null ? filtre.getRole() : null,
+                pageable);
 
         KullanicilariListeleResponseDTO responseDTO = new KullanicilariListeleResponseDTO();
         responseDTO.loadFrom(page, this::toKullaniciOzetDTO);

@@ -458,9 +458,10 @@ public class SirketIcerikServiceImpl implements SirketIcerikService {
     public IletisimMesajlariListeleResponseDTO iletisimMesajlariniListele(IletisimMesajlariListeleRequestDTO request) {
         Company company = authenticationService.getAuthenticatedUserCompany();
         Pageable pageable = request.toPageable(MAX_PAGE_SIZE);
+        Boolean read = request.getData() != null ? request.getData().getRead() : null;
 
-        Page<ContactMessage> messages = request.getRead() != null
-                ? contactMessageRepository.findByCompanyAndDeletedFalseAndReadOrderByCreatedAtDesc(company, request.getRead(), pageable)
+        Page<ContactMessage> messages = read != null
+                ? contactMessageRepository.findByCompanyAndDeletedFalseAndReadOrderByCreatedAtDesc(company, read, pageable)
                 : contactMessageRepository.findByCompanyAndDeletedFalseOrderByCreatedAtDesc(company, pageable);
 
         IletisimMesajlariListeleResponseDTO responseDTO = new IletisimMesajlariListeleResponseDTO();

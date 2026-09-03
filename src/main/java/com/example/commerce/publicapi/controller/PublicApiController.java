@@ -19,10 +19,10 @@ public class PublicApiController {
     private final PublicSiteService publicSiteService;
 
     @Operation(summary = "API key ile kullanıcının projelerini listeler (sayfalı)")
-    @GetMapping("/projeler")
+    @PostMapping("/projeler")
     public ResponseEntity<PublicProjelerResponseDTO> projeleriGetir(
             @RequestHeader("X-API-Key") String apiKey,
-            @ModelAttribute PublicProjeleriGetirRequestDTO request) {
+            @RequestBody PublicProjeleriGetirRequestDTO request) {
         return ResponseEntity.ok(publicProjeService.projeleriGetir(apiKey, request));
     }
 

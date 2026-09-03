@@ -33,9 +33,9 @@ public class ProjeAyarlariController {
 
     @Operation(summary = "Şirket admininin kendi eklediği projeleri sayfalı olarak listeler (dosyalar sadece meta data)")
     @PreAuthorize("hasAuthority('SIRKET')")
-    @GetMapping("/projeleri-listele")
+    @PostMapping("/projeleri-listele")
     public ResponseEntity<SirketProjelerListeleResponseDTO> sirketProjeleriListele(
-            @ModelAttribute ProjeleriListeleRequestDTO request) {
+            @RequestBody ProjeleriListeleRequestDTO request) {
         return ResponseEntity.ok(projeService.projeleriListele(request));
     }
 

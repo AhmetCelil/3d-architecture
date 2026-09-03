@@ -6,24 +6,28 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 /**
- * Sayfalı (paginated) listeleme isteklerinin ortak taban alanları (FE'den
- * query param olarak gelir: {@code ?page=0&size=20}). Her listeleme kendi
- * request DTO'sunu bunu extend ederek tanımlar, örn:
- * {@code class ProjeleriListeleRequestDTO extends PageRequestDto {}}
- * — ileride o listelemeye özel filtre alanları eklenmek istenirse buraya
- * eklenir.
+ * Sayfalı (paginated) listeleme isteklerinin ortak zarfı (FE'den JSON body
+ * olarak gelir):
+ * {@code { "data": {...filtreler}, "meta": { "pagination": { "pageNo": 1, "pageSize": 20 } } } }
+ * Her listeleme kendi filtre tipini D olarak vererek bunu extend eder, örn:
+ * {@code class ProjeleriListeleRequestDTO extends PageRequestDto<Void> {}}
+ * — filtre alanı yoksa D olarak {@code Void} kullanılır.
  */
 @Getter
 @Setter
-public class PageRequestDto {
+public class PageRequestDto<D> extends BaseRequestDto {
 
-    private int page = 0;
-    private int size = 20;
+    private D data;
+    private MetaRequestDto meta = new MetaRequestDto();
 
-    /** page/size'ı güvenli aralığa (page>=0, 1<=size<=maxSize) çekip Pageable üretir. */
+    /** pageNo (1 tabanlı) / pageSize'ı güvenli aralığa (page>=0, 1<=size<=maxSize) çekip Pageable üretir. */
     public Pageable toPageable(int maxSize) {
-        int safePage = Math.max(page, 0);
-        int safeSize = Math.min(Math.max(size, 1), maxSize);
+        PaginationRequestDto pagination = meta != null ? meta.getPagination() : null;
+        int pageNo = pagination != null ? pagination.getPageNo() : 1;
+        int pageSize = pagination != null ? pagination.getPageSize() : maxSize;
+
+        int safePage = Math.max(pageNo - 1, 0);
+        int safeSize = Math.min(Math.max(pageSize, 1), maxSize);
         return PageRequest.of(safePage, safeSize);
     }
 }
