@@ -6,6 +6,7 @@ import com.example.commerce.adminpanel.enums.DisplayFrequency;
 import com.example.commerce.adminpanel.repository.*;
 import com.example.commerce.auth.service.AuthenticationService;
 import com.example.commerce.basedtos.AppMessageType;
+import com.example.commerce.common.cache.FileByteCache;
 import com.example.commerce.exception.BusinessServiceException;
 import com.example.commerce.exception.ResourceNotFoundException;
 import com.example.commerce.exception.ValidationServiceException;
@@ -43,6 +44,7 @@ public class SirketIcerikServiceImpl implements SirketIcerikService {
     private final ContactMessageRepository contactMessageRepository;
     private final AnnouncementRepository announcementRepository;
     private final AuthenticationService authenticationService;
+    private final FileByteCache fileByteCache;
 
     // ---------------------------------------------------------------------
     // Hakkımızda / Ana Sayfa
@@ -579,10 +581,12 @@ public class SirketIcerikServiceImpl implements SirketIcerikService {
 
         if (image != null && !image.isEmpty()) {
             applyImage(announcement, image);
+            fileByteCache.evict("announcementImage:" + id);
         } else if (request.isRemoveImage()) {
             announcement.setImageData(null);
             announcement.setImageFileName(null);
             announcement.setImageFileType(null);
+            fileByteCache.evict("announcementImage:" + id);
         }
 
         announcementRepository.save(announcement);
@@ -600,6 +604,7 @@ public class SirketIcerikServiceImpl implements SirketIcerikService {
 
         announcement.setDeleted(true);
         announcementRepository.save(announcement);
+        fileByteCache.evict("announcementImage:" + id);
 
         return ackResponse("duyuru.silme.basarili", "Duyuru silindi");
     }
@@ -608,14 +613,18 @@ public class SirketIcerikServiceImpl implements SirketIcerikService {
     @Transactional(readOnly = true)
     public DuyuruGorsel duyuruGorseliGetir(Long id) {
         Company company = authenticationService.getAuthenticatedUserCompany();
-        Announcement announcement = announcementRepository.findByIdAndCompanyAndDeletedFalse(id, company)
+        AnnouncementRepository.AnnouncementImageMetaView meta = announcementRepository
+                .findImageMetaByIdAndCompanyAndDeletedFalse(id, company)
                 .orElseThrow(() -> new ResourceNotFoundException("duyuru.bulunamadi", "Duyuru bulunamadı"));
 
-        if (announcement.getImageData() == null) {
+        if (meta.getImageFileName() == null) {
             throw new ResourceNotFoundException("duyuru.gorsel.bulunamadi", "Duyuruya ait görsel bulunamadı");
         }
 
-        return new DuyuruGorsel(announcement.getImageFileName(), announcement.getImageFileType(), announcement.getImageData());
+        byte[] data = fileByteCache.get("announcementImage:" + id,
+                key -> announcementRepository.findById(id).map(Announcement::getImageData).orElse(null));
+
+        return new DuyuruGorsel(meta.getImageFileName(), meta.getImageFileType(), data);
     }
 
     private void applyImage(Announcement announcement, MultipartFile image) {

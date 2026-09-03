@@ -2,6 +2,7 @@ package com.example.commerce.rent.admin.service;
 
 import com.example.commerce.auth.service.AuthenticationService;
 import com.example.commerce.basedtos.AppMessageType;
+import com.example.commerce.common.cache.FileByteCache;
 import com.example.commerce.exception.BusinessServiceException;
 import com.example.commerce.exception.ResourceNotFoundException;
 import com.example.commerce.exception.ValidationServiceException;
@@ -42,6 +43,7 @@ public class RentAdminServiceImpl implements RentAdminService {
     private final RentSettingsRepository rentSettingsRepository;
     private final RentCalendarService calendarService;
     private final AuthenticationService authenticationService;
+    private final FileByteCache fileByteCache;
 
     // ---------------------------------------------------------------------
     // Villa
@@ -161,6 +163,7 @@ public class RentAdminServiceImpl implements RentAdminService {
 
         image.setDeleted(true);
         villaImageRepository.save(image);
+        fileByteCache.evict("villaImage:" + imageId);
         return ackResponse("villa.gorsel.silme.basarili", "Görsel silindi");
     }
 
@@ -169,10 +172,14 @@ public class RentAdminServiceImpl implements RentAdminService {
     public ResponseEntity<byte[]> gorselGetir(Long villaId, Long imageId) {
         Company company = requireModuleEnabled();
         Villa villa = findVillaOrThrow(villaId, company);
-        VillaImage image = villaImageRepository.findByIdAndVillaAndDeletedFalse(imageId, villa)
+        VillaImageRepository.VillaImageFileMetaView meta = villaImageRepository
+                .findFileMetaByIdAndVillaAndDeletedFalse(imageId, villa)
                 .orElseThrow(() -> new ResourceNotFoundException("villa.gorsel.bulunamadi", "Villa görseli bulunamadı"));
 
-        return FileResponseUtil.inline(image.getFileName(), image.getFileType(), image.getFileData());
+        byte[] data = fileByteCache.get("villaImage:" + imageId,
+                key -> villaImageRepository.findById(imageId).map(VillaImage::getFileData).orElse(null));
+
+        return FileResponseUtil.inline(meta.getFileName(), meta.getFileType(), data);
     }
 
     // ---------------------------------------------------------------------

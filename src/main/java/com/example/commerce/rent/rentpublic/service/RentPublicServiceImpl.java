@@ -3,6 +3,7 @@ package com.example.commerce.rent.rentpublic.service;
 import com.example.commerce.adminpanel.repository.CompanyContactInfoRepository;
 import com.example.commerce.altcha.AltchaService;
 import com.example.commerce.basedtos.AppMessageType;
+import com.example.commerce.common.cache.FileByteCache;
 import com.example.commerce.exception.BusinessServiceException;
 import com.example.commerce.exception.ResourceNotFoundException;
 import com.example.commerce.exception.ValidationServiceException;
@@ -48,6 +49,7 @@ public class RentPublicServiceImpl implements RentPublicService {
     private final WhatsAppService whatsAppService;
     private final CompanyContactInfoRepository companyContactInfoRepository;
     private final RentCalendarService calendarService;
+    private final FileByteCache fileByteCache;
 
     @Override
     @Transactional(readOnly = true)
@@ -88,10 +90,14 @@ public class RentPublicServiceImpl implements RentPublicService {
     public ResponseEntity<byte[]> gorselGetir(String apiKey, Long villaId, Long imageId) {
         Company company = requireModuleEnabled(apiKey);
         Villa villa = findVillaOrThrow(villaId, company);
-        VillaImage image = villaImageRepository.findByIdAndVillaAndDeletedFalse(imageId, villa)
+        VillaImageRepository.VillaImageFileMetaView meta = villaImageRepository
+                .findFileMetaByIdAndVillaAndDeletedFalse(imageId, villa)
                 .orElseThrow(() -> new ResourceNotFoundException("villa.gorsel.bulunamadi", "Villa görseli bulunamadı"));
 
-        return FileResponseUtil.inline(image.getFileName(), image.getFileType(), image.getFileData());
+        byte[] data = fileByteCache.get("villaImage:" + imageId,
+                key -> villaImageRepository.findById(imageId).map(VillaImage::getFileData).orElse(null));
+
+        return FileResponseUtil.inline(meta.getFileName(), meta.getFileType(), data);
     }
 
     @Override

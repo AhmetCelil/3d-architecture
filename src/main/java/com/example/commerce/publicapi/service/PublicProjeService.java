@@ -95,7 +95,7 @@ public class PublicProjeService {
         return responseDTO;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ResponseEntity<byte[]> dosyaIndir(String apiKey, Long projeId, Long dosyaId) {
         Company company = getCompanyByApiKey(apiKey);
 

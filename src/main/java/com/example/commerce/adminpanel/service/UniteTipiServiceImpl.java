@@ -12,6 +12,7 @@ import com.example.commerce.adminpanel.repository.UnitTypeRepository;
 import com.example.commerce.auth.entity.User;
 import com.example.commerce.auth.service.AuthenticationService;
 import com.example.commerce.basedtos.AppMessageType;
+import com.example.commerce.common.cache.FileByteCache;
 import com.example.commerce.exception.BusinessServiceException;
 import com.example.commerce.exception.ResourceNotFoundException;
 import com.example.commerce.exception.ValidationServiceException;
@@ -60,6 +61,7 @@ public class UniteTipiServiceImpl implements UniteTipiService {
     private final CompanyProjectRepository projectRepository;
     private final ProjectFileRepository fileRepository;
     private final AuthenticationService authenticationService;
+    private final FileByteCache fileByteCache;
 
     @Override
     @Transactional
@@ -207,6 +209,7 @@ public class UniteTipiServiceImpl implements UniteTipiService {
 
         fileToRemove.setDeleted(true);
         fileRepository.save(fileToRemove);
+        fileByteCache.evict("projectFile:" + dosyaId);
 
         log.info("Ünite tipi dosyası silindi (soft delete): Ünite Tipi ID={}, Dosya ID={}, Kullanıcı={}",
                 uniteTipiId, dosyaId, user.getEmail());

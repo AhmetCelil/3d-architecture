@@ -5,6 +5,7 @@ import com.example.commerce.adminpanel.entity.CompanyContactInfo;
 import com.example.commerce.adminpanel.entity.CompanyProfile;
 import com.example.commerce.adminpanel.entity.ContactMessage;
 import com.example.commerce.adminpanel.repository.*;
+import com.example.commerce.common.cache.FileByteCache;
 import com.example.commerce.exception.ResourceNotFoundException;
 import com.example.commerce.exception.ValidationServiceException;
 import com.example.commerce.publicapi.dto.*;
@@ -38,6 +39,7 @@ public class PublicSiteService {
     private final AnnouncementRepository announcementRepository;
     private final ContactMessageRepository contactMessageRepository;
     private final WhatsAppService whatsAppService;
+    private final FileByteCache fileByteCache;
 
     private Company getCompanyByApiKey(String apiKey) {
         return apiKeyService.resolveCompany(apiKey);
@@ -159,15 +161,18 @@ public class PublicSiteService {
     public ResponseEntity<byte[]> duyuruGorseliGetir(String apiKey, Long duyuruId) {
         Company company = getCompanyByApiKey(apiKey);
 
-        Announcement announcement = announcementRepository.findByIdAndCompanyAndDeletedFalse(duyuruId, company)
+        AnnouncementRepository.AnnouncementImageMetaView meta = announcementRepository
+                .findImageMetaByIdAndCompanyAndDeletedFalse(duyuruId, company)
                 .orElseThrow(() -> new ResourceNotFoundException("duyuru.bulunamadi", "Duyuru bulunamadı"));
 
-        if (announcement.getImageData() == null) {
+        if (meta.getImageFileName() == null) {
             throw new ResourceNotFoundException("duyuru.gorsel.bulunamadi", "Duyuruya ait görsel bulunamadı");
         }
 
-        return FileResponseUtil.inline(announcement.getImageFileName(), announcement.getImageFileType(),
-                announcement.getImageData(), "private, max-age=3600");
+        byte[] data = fileByteCache.get("announcementImage:" + duyuruId,
+                key -> announcementRepository.findById(duyuruId).map(Announcement::getImageData).orElse(null));
+
+        return FileResponseUtil.inline(meta.getImageFileName(), meta.getImageFileType(), data, "private, max-age=3600");
     }
 
     @Transactional
